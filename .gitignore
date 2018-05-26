@@ -1,0 +1,16 @@
+# Created by .ignore support plugin (hsz.mobi)
+
+# PhpStorm project folder
+.idea/
+# NetBeans project folder
+nbproject/
+# Visual Studio Code project folder
+.vscode/
+# Eclipse config files
+.project
+.settings
+.buildpath
+
+# Composer installed local files
+vendor/
+*.lock

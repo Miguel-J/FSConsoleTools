@@ -213,18 +213,14 @@ class OrderXmlTables extends ConsoleAbstract
                 usort($columns, [$this, 'sortName']);
             }
 
+            // Generate string XML result
+            $strXML = $this->generateXMLHeader($fileName);
+            $strXML .= $this->generateXMLContent($columns);
             if (isset($table['constraint'])) {
                 $constraints = $table['constraint'];
                 if (!\is_object($constraints)) {
                     usort($constraints, [$this, 'sortName']);
                 }
-            }
-
-            // Generate string XML result
-            $strXML = $this->generateXMLHeader($fileName);
-            $strXML .= $this->generateXMLContent($columns);
-            if (isset($table['constraint'])) {
-                /** @noinspection PhpUndefinedVariableInspection */
                 $strXML .= $this->generateXMLContent($constraints, 'constraint');
             }
             $strXML .= $this->generateXMLFooter();

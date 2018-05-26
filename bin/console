@@ -22,13 +22,10 @@ if (\PHP_SAPI !== 'cli') {
     die('Access allowed only in command line.');
 }
 
-define('FS_FOLDER', __DIR__ . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS);
-
-if (!defined('FS_DEBUG')) {
-    define('FS_DEBUG', false);
-}
-
 const DS = DIRECTORY_SEPARATOR;
+
+define('FS_FOLDER', __DIR__ . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS);
+
 const CONFIG = FS_FOLDER . 'config.php';
 const SCR_CONFIG = FS_FOLDER . 'Test' . DS . 'config-scrutinizer.php';
 const TRA_CONFIG = FS_FOLDER . 'Test' . DS . 'config-travis.php';
@@ -60,6 +57,10 @@ if (file_exists(CONFIG)) {
         define('DB_CONNECTION', false);
         echo '# Not founded any FS config file. You can\'t use DB supported commands.' . \PHP_EOL;
     }
+}
+
+if (!defined('FS_DEBUG')) {
+    define('FS_DEBUG', false);
 }
 
 new FacturaScriptsUtils\Console\ConsoleManager($_SERVER['argc'], $_SERVER['argv']);

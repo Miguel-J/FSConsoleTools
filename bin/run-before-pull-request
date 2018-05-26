@@ -1,0 +1,109 @@
+#!/usr/bin/env php
+<?php
+/**
+ * This file is part of FSConsoleTools
+ * Copyright (C) 2018 Francesc Pineda Segarra <francesc.pineda.segarra@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+if (\PHP_SAPI !== 'cli') {
+    die('Access allowed only in command line.');
+}
+
+const DS = DIRECTORY_SEPARATOR;
+
+define('FS_FOLDER', __DIR__ . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS);
+
+const CONFIG = FS_FOLDER . 'config.php';
+const SCR_CONFIG = FS_FOLDER . 'Test' . DS . 'config-scrutinizer.php';
+const TRA_CONFIG = FS_FOLDER . 'Test' . DS . 'config-travis.php';
+
+/** @noinspection PhpIncludeInspection */
+require_once FS_FOLDER . 'vendor' . DS . 'autoload.php';
+
+if (file_exists(CONFIG)) {
+    define('DB_CONNECTION', true);
+    /** @noinspection PhpIncludeInspection */
+    require_once CONFIG;
+} else {
+    $msg = '# WARNING: Not found ' . CONFIG . '#' . \PHP_EOL
+        .  '# Looking for config-scrutinizer.php or config-travis.php as alternative.' . \PHP_EOL;
+    echo $msg;
+    // Allows to use it if you are in development,
+    // but need to use at least this config as development environment.
+    if (file_exists(SCR_CONFIG)) {
+        echo '# Found ' . SCR_CONFIG . \PHP_EOL;
+        define('DB_CONNECTION', true);
+        /** @noinspection PhpIncludeInspection */
+        require_once SCR_CONFIG;
+    } elseif (file_exists(TRA_CONFIG)) {
+        echo '# Found ' . SCR_CONFIG . \PHP_EOL;
+        define('DB_CONNECTION', true);
+        /** @noinspection PhpIncludeInspection */
+        require_once TRA_CONFIG;
+    } else {
+        define('DB_CONNECTION', false);
+        echo '# Not founded any FS config file. You can\'t use DB supported commands.' . \PHP_EOL;
+    }
+}
+
+if (!DB_CONNECTION) {
+    echo '# A config.php file is needed to run all fixes.' . \PHP_EOL;
+}
+
+if (!defined('FS_DEBUG')) {
+    define('FS_DEBUG', false);
+}
+
+echo 'Fixing XML tables...' . PHP_EOL;
+$order = new FacturaScriptsUtils\Console\Command\OrderXmlTables();
+$srcPath = FS_FOLDER . 'Core' . DS . 'Table' . DS;
+$order->setFolderSrcPath($srcPath);
+$order->setFolderDstPath($srcPath);
+$order->setTagName('name');
+$exitCode = $order->run();
+if ($exitCode>0) {
+    exit($exitCode);
+}
+
+echo PHP_EOL . PHP_EOL;
+
+echo 'Fixing JSON files...' . PHP_EOL;
+$order = new FacturaScriptsUtils\Console\Command\OrderJsonFiles();
+$srcPath = FS_FOLDER . 'Core' . DS . 'Translation' . DS;
+$order->setFolderSrcPath($srcPath);
+$order->setFolderDstPath($srcPath);
+$exitCode = $order->run();
+if ($exitCode>0) {
+    exit($exitCode);
+}
+
+echo PHP_EOL . PHP_EOL;
+
+echo 'Runing PHPCBF...' . PHP_EOL;
+$output = shell_exec('vendor/bin/phpcbf --tab-width=4 --encoding=utf-8 --standard=phpcs.xml Core -s');
+echo $output;
+
+echo PHP_EOL . PHP_EOL;
+
+echo 'Runing PHPCS...' . PHP_EOL;
+$output = shell_exec('vendor/bin/phpcs --tab-width=4 --encoding=utf-8 --standard=phpcs.xml Core -s');
+echo $output;
+
+echo PHP_EOL . PHP_EOL;
+
+echo 'Runing PHPUnit test...' . PHP_EOL;
+$output = shell_exec('vendor/bin/phpunit --configuration phpunit.xml');
+echo $output;

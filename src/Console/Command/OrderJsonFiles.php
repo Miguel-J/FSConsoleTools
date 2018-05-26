@@ -163,22 +163,18 @@ class OrderJsonFiles extends ConsoleAbstract
             echo 'ERROR: Source folder not setted.' . \PHP_EOL;
             return self::RETURN_SRC_FOLDER_NOT_SET;
         }
-
         if ($this->folderDstPath === null) {
             echo 'ERROR: Destiny folder not setted.' . \PHP_EOL;
             return self::RETURN_DST_FOLDER_NOT_SET;
         }
-
         if (!is_dir($this->folderSrcPath)) {
             echo 'ERROR: Source folder ' . $this->folderSrcPath . ' not exists.' . \PHP_EOL;
             return self::RETURN_SRC_FOLDER_NOT_EXISTS;
         }
-
         if (!is_file($this->folderDstPath) && !@mkdir($this->folderDstPath) && !is_dir($this->folderDstPath)) {
             echo "ERROR: Can't create folder " . $this->folderDstPath;
             return self::RETURN_CANT_CREATE_FOLDER;
         }
-
         return self::RETURN_SUCCESS;
     }
 
@@ -194,10 +190,8 @@ class OrderJsonFiles extends ConsoleAbstract
         foreach ($files as $fileName) {
             $arrayContent = $this->readJSON($this->folderSrcPath . $fileName);
             \ksort($arrayContent);
-            if ($this->saveJSON($arrayContent, $this->folderDstPath . $fileName)) {
-                echo '   - File ' . $fileName . ' ordered.' . \PHP_EOL;
-            } else {
-                echo '   - File ' . $fileName . 'can\'t be saved.' . \PHP_EOL;
+            if (!$this->saveJSON($arrayContent, $this->folderDstPath . $fileName)) {
+                echo "ERROR: Can't save file " . $fileName . \PHP_EOL;
             }
         }
 
@@ -220,7 +214,7 @@ class OrderJsonFiles extends ConsoleAbstract
     /**
      * Write a JSON from an array to disc and return its result.
      *
-     * @param array $data
+     * @param array  $data
      * @param string $pathName
      *
      * @return bool|int

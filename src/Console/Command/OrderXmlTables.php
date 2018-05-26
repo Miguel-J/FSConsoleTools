@@ -133,6 +133,51 @@ class OrderXmlTables extends ConsoleAbstract
     }
 
     /**
+     * Return description about this class.
+     *
+     * @return string
+     */
+    public function getDescription(): string
+    {
+        return 'Order XML content files by tag name.';
+    }
+
+    /**
+     * Print help information to the user.
+     */
+    public function showHelp()
+    {
+        $array = \explode('\\', __CLASS__);
+        $class = array_pop($array);
+        echo 'Use as: php vendor/bin/console ' . $class . ' [OPTIONS]' . \PHP_EOL;
+        echo 'Available options:' . \PHP_EOL;
+        echo '   -h, --help        Show this help.' . \PHP_EOL;
+        echo \PHP_EOL;
+        echo '   OPTION1           Source path' . \PHP_EOL;
+        echo '   OPTION2           Destiny path' . \PHP_EOL;
+        echo '   OPTION3           Tag name' . \PHP_EOL;
+        echo \PHP_EOL;
+    }
+
+    /**
+     * Returns an associative array of available methods for the user.
+     * Add more options if you want to add support for custom methods.
+     *      [
+     *          '-h'        => 'showHelp',
+     *          '--help'    => 'showHelp',
+     *      ]
+     *
+     * @return array
+     */
+    public function getUserMethods(): array
+    {
+        return [
+            '-h' => 'showHelp',
+            '--help' => 'showHelp'
+        ];
+    }
+
+    /**
      * Order Xml files
      *
      * @param array $files
@@ -186,51 +231,6 @@ class OrderXmlTables extends ConsoleAbstract
     }
 
     /**
-     * Return description about this class.
-     *
-     * @return string
-     */
-    public function getDescription(): string
-    {
-        return 'Order XML content files by tag name.';
-    }
-
-    /**
-     * Print help information to the user.
-     */
-    public function showHelp()
-    {
-        $array = \explode('\\', __CLASS__);
-        $class = array_pop($array);
-        echo 'Use as: php vendor/bin/console ' . $class . ' [OPTIONS]' . \PHP_EOL;
-        echo 'Available options:' . \PHP_EOL;
-        echo '   -h, --help        Show this help.' . \PHP_EOL;
-        echo \PHP_EOL;
-        echo '   OPTION1           Source path' . \PHP_EOL;
-        echo '   OPTION2           Destiny path' . \PHP_EOL;
-        echo '   OPTION3           Tag name' . \PHP_EOL;
-        echo \PHP_EOL;
-    }
-
-    /**
-     * Returns an associative array of available methods for the user.
-     * Add more options if you want to add support for custom methods.
-     *      [
-     *          '-h'        => 'showHelp',
-     *          '--help'    => 'showHelp',
-     *      ]
-     *
-     * @return array
-     */
-    public function getUserMethods(): array
-    {
-        return [
-            '-h' => 'showHelp',
-            '--help' => 'showHelp'
-        ];
-    }
-
-    /**
      * @param array $params
      */
     private function checkOptions(array $params = [])
@@ -257,28 +257,22 @@ class OrderXmlTables extends ConsoleAbstract
             echo 'ERROR: Source folder not setted.' . \PHP_EOL;
             return self::RETURN_SRC_FOLDER_NOT_SET;
         }
-
         if ($this->folderDstPath === null) {
             echo 'ERROR: Destiny folder not setted.' . \PHP_EOL;
             return self::RETURN_DST_FOLDER_NOT_SET;
         }
-
         if ($this->tagName === null) {
             echo 'ERROR: Tag name not setted.' . \PHP_EOL;
             return self::RETURN_TAGNAME_NOT_SET;
         }
-
         if (!is_dir($this->folderSrcPath)) {
             echo 'ERROR: Source folder ' . $this->folderSrcPath . ' not exists.' . \PHP_EOL;
             return self::RETURN_SRC_FOLDER_NOT_EXISTS;
         }
-
-
         if (!is_file($this->folderDstPath) && !@mkdir($this->folderDstPath) && !is_dir($this->folderDstPath)) {
             echo "ERROR: Can't create folder " . $this->folderDstPath;
             return self::RETURN_CANT_CREATE_FOLDER;
         }
-
         return self::RETURN_SUCCESS;
     }
 
@@ -338,7 +332,7 @@ class OrderXmlTables extends ConsoleAbstract
         $str = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
         $str .= '<!--' . PHP_EOL;
         $str .= '    Document   : ' . $fileName . PHP_EOL;
-        $str .= '    Author     : Carlos Garcia Gomez' . PHP_EOL;
+        $str .= '    Author     : Ordered with OrderXmlTables from FSConsoleTools' . PHP_EOL;
         $str .= '    Description: Structure for the ' . str_replace('.xml', '', $fileName) . ' table.' . PHP_EOL;
         $str .= '-->' . PHP_EOL;
         $str .= '<table>' . PHP_EOL;

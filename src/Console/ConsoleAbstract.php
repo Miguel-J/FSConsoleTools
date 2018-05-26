@@ -19,6 +19,10 @@
 
 namespace FacturaScriptsUtils\Console;
 
+if (!\defined('FS_FOLDER')) {
+    define('FS_FOLDER', __DIR__ . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS);
+}
+
 /**
  * Class ConsoleAbstract
  *

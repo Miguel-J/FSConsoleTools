@@ -6,7 +6,7 @@
 
 Inside your FacturaScripts run this:
 ```
-composer require --dev facturascripts_utils/fs_console_tools:dev-master
+composer require --dev shawe/fs_console_tools:0.1
 ./vendor/bin/order-xml-tables
 ```
 

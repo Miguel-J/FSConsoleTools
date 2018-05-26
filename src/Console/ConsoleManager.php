@@ -323,13 +323,13 @@ class ConsoleManager extends ConsoleAbstract
      *
      * @param string $fileName
      *
-     * @return array
+     * @return string
      */
-    private function getClassName(string $fileName): array
+    private function getClassName(string $fileName): string
     {
         $dirsAndFile = explode(DIRECTORY_SEPARATOR, $fileName);
         $fileName = array_pop($dirsAndFile);
         $nameAndExt = explode('.', $fileName);
-        return (array) array_shift($nameAndExt);
+        return (string) array_shift($nameAndExt);
     }
 }

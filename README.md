@@ -6,10 +6,17 @@
 
 Inside your FacturaScripts run this:
 ```
-composer require shawe/fs-console-tools:^0.2
-./vendor/bin/order-xml-tables
+composer require shawe/fs-console-tools
 ```
 
-## Options
+Now you can use some useful commands as:
+- Reorder content of XML for tables with:
+   - ```./vendor/bin/order-xml-tables```
+- Reorder content of JSON files:
+   - ```./vendor/bin/order-json-files```
+- Add custom commands you need
+
+## Available options
 
 - **bin/order-xml-tables:** *This is a little utility to reorder XML table items.*
+- **bin/order-json-files:** *This is a little utility to reorder JSON items.*

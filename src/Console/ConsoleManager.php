@@ -211,7 +211,7 @@ class ConsoleManager extends ConsoleAbstract
             echo '   ' . $option . \PHP_EOL;
         }
 
-        echo \PHP_EOL . 'Use as: php console ' . $cmd . ' [OPTIONS]' . \PHP_EOL . \PHP_EOL;
+        echo \PHP_EOL . 'Use as: php ' . $this->argv[0] . ' ' . $cmd . ' [OPTIONS]' . \PHP_EOL . \PHP_EOL;
 
         die();
     }

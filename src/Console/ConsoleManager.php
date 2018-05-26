@@ -74,7 +74,7 @@ class ConsoleManager extends ConsoleAbstract
     {
         $cmd = $this->argv[1];
 
-        if (class_exists(__NAMESPACE__ . '\\' . $cmd)) {
+        if (class_exists(__NAMESPACE__ . '\Command\\' . $cmd)) {
             exit($this->execute());
         }
 
@@ -239,10 +239,9 @@ class ConsoleManager extends ConsoleAbstract
     {
         $available = [];
         $allClasses = $this->getAllFcqns(__DIR__ . '/Command');
-        $exclude = [__NAMESPACE__ . '\\' . 'ConsoleManager', __NAMESPACE__ . '\\' . 'ConsoleAbstract'];
         foreach ($allClasses as $class) {
-            if (0 === \strpos($class, __NAMESPACE__ . '\\') && !\in_array($class, $exclude, false)) {
-                $available[] = \str_replace(__NAMESPACE__ . '\\', '', $class);
+            if (0 === \strpos($class, __NAMESPACE__ . '\Command\\')) {
+                $available[] = \str_replace(__NAMESPACE__ . '\Command\\', '', $class);
             }
         }
         return $available;

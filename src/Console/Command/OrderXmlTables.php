@@ -24,7 +24,7 @@ use FacturaScriptsUtils\Console\ConsoleAbstract;
 use SimpleXMLElement;
 
 /**
- * Class OrderXMLTable
+ * Class OrderXmlTable
  *
  * @author Francesc Pineda Segarra <francesc.pineda.segarra@gmail.com>
  */
@@ -94,7 +94,7 @@ class OrderXmlTables extends ConsoleAbstract
     }
 
     /**
-     * Run the OrderXMLTable script.
+     * Run the OrderXmlTable script.
      *
      * @param array $params
      *

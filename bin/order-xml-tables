@@ -18,13 +18,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+define('FS_FOLDER', __DIR__ . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS);
+
 const DS = DIRECTORY_SEPARATOR;
 
 /** @noinspection PhpIncludeInspection */
-require_once __DIR__ . DS . '..' . DS . '..' . DS . '..' . DS . 'autoload.php';
+require_once FS_FOLDER . DS . 'vendor' . DS . 'autoload.php';
 
 $order = new FacturaScriptsUtils\Console\Command\OrderXmlTables();
-$srcPath = __DIR__ . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS . 'Core' . DS . 'Table' . DS;
+$srcPath = FS_FOLDER . DS . 'Core' . DS . 'Table' . DS;
 $order->setFolderSrcPath($srcPath);
 $order->setFolderDstPath($srcPath);
 $order->setTagName('name');

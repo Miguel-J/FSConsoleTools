@@ -22,21 +22,19 @@ if (\PHP_SAPI !== 'cli') {
     die('Access allowed only in command line.');
 }
 
-if (!defined('FS_FOLDER')) {
-    define('FS_FOLDER', __DIR__);
-}
+define('FS_FOLDER', __DIR__ . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS);
+
 if (!defined('FS_DEBUG')) {
     define('FS_DEBUG', false);
 }
 
 const DS = DIRECTORY_SEPARATOR;
-const BASE = __DIR__ . DS . '..' . DS . '..' . DS . '..' . DS . '..';
-const CONFIG = BASE . DS . 'config.php';
-const SCR_CONFIG = BASE . DS . 'Test' . DS . 'config-scrutinizer.php';
-const TRA_CONFIG = BASE . DS . 'Test' . DS . 'config-travis.php';
+const CONFIG = FS_FOLDER . 'config.php';
+const SCR_CONFIG = FS_FOLDER . 'Test' . DS . 'config-scrutinizer.php';
+const TRA_CONFIG = FS_FOLDER . 'Test' . DS . 'config-travis.php';
 
 /** @noinspection PhpIncludeInspection */
-require_once __DIR__ . DS . '..' . DS . '..' . DS . '..' . DS . 'autoload.php';
+require_once FS_FOLDER . 'vendor' . DS . 'autoload.php';
 
 if (file_exists(CONFIG)) {
     define('DB_CONNECTION', true);

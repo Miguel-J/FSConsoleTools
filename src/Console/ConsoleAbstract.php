@@ -61,15 +61,17 @@ abstract class ConsoleAbstract
 
     /**
      * Print help information to the user.
+     *
+     * @return string
      */
-    abstract public function showHelp();
+    abstract public function getHelpMsg(): string;
 
     /**
      * Returns an associative array of available methods for the user.
      * Add more options if you want to add support for custom methods.
      *      [
-     *          '-h'        => 'showHelp',
-     *          '--help'    => 'showHelp',
+     *          '-h'        => 'getHelpMsg',
+     *          '--help'    => 'getHelpMsg',
      *      ]
      *
      * @return array
@@ -77,8 +79,8 @@ abstract class ConsoleAbstract
     public function getUserMethods(): array
     {
         return [
-            '-h' => 'showHelp',
-            '--help' => 'showHelp',
+            '-h' => 'getHelpMsg',
+            '--help' => 'getHelpMsg',
         ];
     }
 

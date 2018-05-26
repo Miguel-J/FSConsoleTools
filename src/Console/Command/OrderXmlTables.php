@@ -20,6 +20,7 @@
 namespace FacturaScriptsUtils\Console\Command;
 
 use DOMDocument;
+use FacturaScripts\Core\Base\FileManager;
 use FacturaScriptsUtils\Console\ConsoleAbstract;
 use SimpleXMLElement;
 
@@ -114,7 +115,7 @@ class OrderXmlTables extends ConsoleAbstract
     public function run(...$params): int
     {
         $status = $this->checkOptions($params);
-        if ($status < 0) {
+        if ($status !== 0) {
             return $status;
         }
 
@@ -132,11 +133,11 @@ class OrderXmlTables extends ConsoleAbstract
         }
 
         $status = $this->check();
-        if ($status > 0) {
+        if ($status !== 0) {
             return $status;
         }
 
-        $files = array_diff(scandir($this->folderSrcPath, SCANDIR_SORT_ASCENDING), ['.', '..']);
+        $files = FileManager::scanFolder($this->folderSrcPath);
 
         if (\count($files) === 0) {
             echo 'ERROR: No files on folder' . \PHP_EOL;
@@ -158,27 +159,29 @@ class OrderXmlTables extends ConsoleAbstract
 
     /**
      * Print help information to the user.
+     *
+     * @return string
      */
-    public function showHelp()
+    public function getHelpMsg(): string
     {
         $array = \explode('\\', __CLASS__);
         $class = array_pop($array);
-        echo 'Use as: php vendor/bin/console ' . $class . ' [OPTIONS]' . \PHP_EOL;
-        echo 'Available options:' . \PHP_EOL;
-        echo '   -h, --help        Show this help.' . \PHP_EOL;
-        echo \PHP_EOL;
-        echo '   OPTION1           Source path' . \PHP_EOL;
-        echo '   OPTION2           Destiny path' . \PHP_EOL;
-        echo '   OPTION3           Tag name' . \PHP_EOL;
-        echo \PHP_EOL;
+        return 'Use as: php vendor/bin/console ' . $class . ' [OPTIONS]' . \PHP_EOL
+            . 'Available options:' . \PHP_EOL
+            . '   -h, --help        Show this help.' . \PHP_EOL
+            . \PHP_EOL
+            . '   OPTION1           Source path' . \PHP_EOL
+            . '   OPTION2           Destiny path' . \PHP_EOL
+            . '   OPTION3           Tag name' . \PHP_EOL
+            . \PHP_EOL;
     }
 
     /**
      * Returns an associative array of available methods for the user.
      * Add more options if you want to add support for custom methods.
      *      [
-     *          '-h'        => 'showHelp',
-     *          '--help'    => 'showHelp',
+     *          '-h'        => 'getHelpMsg',
+     *          '--help'    => 'getHelpMsg',
      *      ]
      *
      * @return array
@@ -186,8 +189,8 @@ class OrderXmlTables extends ConsoleAbstract
     public function getUserMethods(): array
     {
         return [
-            '-h' => 'showHelp',
-            '--help' => 'showHelp'
+            '-h' => 'getHelpMsg',
+            '--help' => 'getHelpMsg'
         ];
     }
 
@@ -253,7 +256,7 @@ class OrderXmlTables extends ConsoleAbstract
             if (isset($row[$item]) && !isset($row[$item]['name'], $row[$item]['type'])) {
                 throw new \RuntimeException(
                     'File is incorrect ' . $this->folderSrcPath . $fileName . \PHP_EOL
-                    . \ucfirst($item) . ' ' . print_r($row[$item], true) .  ' does not contain name or type.'
+                    . \ucfirst($item) . ' ' . print_r($row[$item], true) . ' does not contain name or type.'
                     . 'Execution stopped'
                 );
             }
@@ -303,7 +306,7 @@ class OrderXmlTables extends ConsoleAbstract
             switch ($params[0]) {
                 case '-h':
                 case '--help':
-                    $this->showHelp();
+                    echo $this->getHelpMsg();
                     return -1;
             }
         }

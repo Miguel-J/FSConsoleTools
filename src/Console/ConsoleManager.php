@@ -44,12 +44,12 @@ class ConsoleManager extends ConsoleAbstract
             switch ($this->argv[1]) {
                 case '-l':
                 case '--list':
-                    $this->showAvailableCommands();
+                    echo $this->getAvailableCommandsMsg();
                     break;
 
                 case '-h':
                 case '--help':
-                    $this->showHelp();
+                    echo $this->getHelpMsg();
                     break;
 
                 case 0 === \strpos($this->argv[1], '-'):
@@ -60,7 +60,7 @@ class ConsoleManager extends ConsoleAbstract
                     $this->run();
             }
         } else {
-            $this->showHelp();
+            echo $this->getHelpMsg();
         }
     }
 
@@ -78,7 +78,7 @@ class ConsoleManager extends ConsoleAbstract
             return $this->execute();
         }
         echo \PHP_EOL . 'ERROR: Command "' . $cmd . '" not found.' . \PHP_EOL . \PHP_EOL;
-        $this->showHelp();
+        echo $this->getHelpMsg();
         return -1;
     }
 
@@ -94,24 +94,26 @@ class ConsoleManager extends ConsoleAbstract
 
     /**
      * Print help information to the user.
+     *
+     * @return string
      */
-    public function showHelp()
+    public function getHelpMsg(): string
     {
-        echo 'Use as: php vendor/bin/console [COMMAND] [OPTIONS]' . \PHP_EOL;
-        echo 'Available options:' . \PHP_EOL;
-        echo '   -h, --help        Show this help.' . \PHP_EOL;
-        echo '   -l, --list        Show a list of available commands.' . \PHP_EOL;
-        echo \PHP_EOL;
+        return 'Use as: php vendor/bin/console [COMMAND] [OPTIONS]' . \PHP_EOL
+            . 'Available options:' . \PHP_EOL
+            . '   -h, --help        Show this help.' . \PHP_EOL
+            . '   -l, --list        Show a list of available commands.' . \PHP_EOL
+            . \PHP_EOL;
     }
 
     /**
      * Returns an associative array of available methods for the user.
      * Add more options if you want to add support for custom methods.
      *      [
-     *          '-h'        => 'showHelp',
-     *          '--help'    => 'showHelp',
-     *          '-l'        => 'showAvailableCommands',
-     *          '--list'    => 'showAvailableCommands',
+     *          '-h'        => 'getHelpMsg',
+     *          '--help'    => 'getHelpMsg',
+     *          '-l'        => 'getAvailableCommandsMsg',
+     *          '--list'    => 'getAvailableCommandsMsg',
      *      ]
      *
      * @return array
@@ -120,8 +122,8 @@ class ConsoleManager extends ConsoleAbstract
     {
         // Adding extra method
         $methods = parent::getUserMethods();
-        $methods['-l'] = 'showAvailableCommands';
-        $methods['--list'] = 'showAvailableCommands';
+        $methods['-l'] = 'getAvailableCommandsMsg';
+        $methods['--list'] = 'getAvailableCommandsMsg';
         return $methods;
     }
 
@@ -153,7 +155,7 @@ class ConsoleManager extends ConsoleAbstract
                 // If not alias, we want to directly run
                 $alias = $params[0] ?? 'run';
                 // If not method match, show how it works
-                $method = $methods[$alias[0]] ?? 'showHelp';
+                $method = $methods[$alias[0]] ?? 'getHelpMsg';
 
                 if (\array_key_exists($alias, $methods)) {
                     // Check if method is in class or parent class
@@ -213,15 +215,17 @@ class ConsoleManager extends ConsoleAbstract
 
     /**
      * Print help information to the user.
+     *
+     * @return string
      */
-    public function showAvailableCommands()
+    public function getAvailableCommandsMsg(): string
     {
-        echo 'Available commands:' . \PHP_EOL;
+        $msg = 'Available commands:' . \PHP_EOL;
         foreach ($this->getAvailableCommands() as $cmd) {
             $className = __NAMESPACE__ . '\Command\\' . $cmd;
-            echo '   - ' . $cmd . ' : ' . \call_user_func([new $className(), 'getDescription']) . \PHP_EOL;
+            $msg .= '   - ' . $cmd . ' : ' . \call_user_func([new $className(), 'getDescription']) . \PHP_EOL;
         }
-        echo \PHP_EOL;
+        return $msg . \PHP_EOL;
     }
 
     /**

@@ -39,7 +39,7 @@ if (file_exists(CONFIG)) {
     require_once CONFIG;
 } else {
     $msg = '# WARNING: Not found ' . CONFIG . '#' . \PHP_EOL
-        .  '# Looking for config-scrutinizer.php or config-travis.php as alternative.' . \PHP_EOL;
+        . '# Looking for config-scrutinizer.php or config-travis.php as alternative.' . \PHP_EOL;
     echo $msg;
     // Allows to use it if you are in development,
     // but need to use at least this config as development environment.
@@ -75,7 +75,7 @@ $exitCode = $order->setFolderSrcPath($srcPath)
     ->setFolderDstPath($srcPath)
     ->setTagName('name')
     ->run();
-if ($exitCode>0) {
+if ($exitCode !== 0) {
     exit($exitCode);
 }
 
@@ -87,7 +87,7 @@ $srcPath = FS_FOLDER . 'Core' . DS . 'Translation' . DS;
 $exitCode = $order->setFolderSrcPath($srcPath)
     ->setFolderDstPath($srcPath)
     ->run();
-if ($exitCode>0) {
+if ($exitCode !== 0) {
     exit($exitCode);
 }
 

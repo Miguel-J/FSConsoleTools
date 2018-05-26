@@ -19,6 +19,7 @@
 
 namespace FacturaScriptsUtils\Console\Command;
 
+use FacturaScripts\Core\Base\FileManager;
 use FacturaScriptsUtils\Console\ConsoleAbstract;
 
 /**
@@ -89,7 +90,7 @@ class OrderJsonFiles extends ConsoleAbstract
     public function run(...$params): int
     {
         $status = $this->checkOptions($params);
-        if ($status < 0) {
+        if ($status !== 0) {
             return $status;
         }
 
@@ -105,11 +106,11 @@ class OrderJsonFiles extends ConsoleAbstract
         }
 
         $status = $this->check();
-        if ($status > 0) {
+        if ($status !== 0) {
             return $status;
         }
 
-        $files = array_diff(scandir($this->folderSrcPath, SCANDIR_SORT_ASCENDING), ['.', '..']);
+        $files = FileManager::scanFolder($this->folderSrcPath);
 
         if (\count($files) === 0) {
             echo 'ERROR: No files on folder' . \PHP_EOL;
@@ -131,18 +132,20 @@ class OrderJsonFiles extends ConsoleAbstract
 
     /**
      * Print help information to the user.
+     *
+     * @return string
      */
-    public function showHelp()
+    public function getHelpMsg(): string
     {
         $array = \explode('\\', __CLASS__);
         $class = array_pop($array);
-        echo 'Use as: php vendor/bin/console ' . $class . ' [OPTIONS]' . \PHP_EOL;
-        echo 'Available options:' . \PHP_EOL;
-        echo '   -h, --help        Show this help.' . \PHP_EOL;
-        echo \PHP_EOL;
-        echo '   OPTION1           Source path' . \PHP_EOL;
-        echo '   OPTION2           Destiny path' . \PHP_EOL;
-        echo \PHP_EOL;
+        return 'Use as: php vendor/bin/console ' . $class . ' [OPTIONS]' . \PHP_EOL
+            . 'Available options:' . \PHP_EOL
+            . '   -h, --help        Show this help.' . \PHP_EOL
+            . \PHP_EOL
+            . '   OPTION1           Source path' . \PHP_EOL
+            . '   OPTION2           Destiny path' . \PHP_EOL
+            . \PHP_EOL;
     }
 
     /**
@@ -158,7 +161,7 @@ class OrderJsonFiles extends ConsoleAbstract
             switch ($params[0]) {
                 case '-h':
                 case '--help':
-                    $this->showHelp();
+                    echo $this->getHelpMsg();
                     return -1;
             }
         }
@@ -219,7 +222,7 @@ class OrderJsonFiles extends ConsoleAbstract
      *
      * @return array
      */
-    private function readJSON(string $pathName)
+    private function readJSON(string $pathName): array
     {
         $data = json_decode(file_get_contents($pathName), true);
         return \is_array($data) ? (array) $data : [];

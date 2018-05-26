@@ -49,6 +49,7 @@ class ConsoleManager extends ConsoleAbstract
 
                 case '-h':
                 case '--help':
+                    $this->showHelp();
                     break;
 
                 case 0 === \strpos($this->argv[1], '-'):
@@ -58,9 +59,9 @@ class ConsoleManager extends ConsoleAbstract
                 default:
                     $this->run();
             }
+        } else {
+            $this->showHelp();
         }
-
-        $this->showHelp();
     }
 
     /**
@@ -73,13 +74,10 @@ class ConsoleManager extends ConsoleAbstract
     public function run(...$params): int
     {
         $cmd = $this->argv[1];
-
         if (class_exists(__NAMESPACE__ . '\Command\\' . $cmd)) {
             return $this->execute();
         }
-
         echo \PHP_EOL . 'ERROR: Command "' . $cmd . '" not found.' . \PHP_EOL . \PHP_EOL;
-
         $this->showHelp();
         return -1;
     }
@@ -124,7 +122,6 @@ class ConsoleManager extends ConsoleAbstract
         $methods = parent::getUserMethods();
         $methods['-l'] = 'showAvailableCommands';
         $methods['--list'] = 'showAvailableCommands';
-
         return $methods;
     }
 
@@ -205,16 +202,12 @@ class ConsoleManager extends ConsoleAbstract
     public function getAvailableOptions(string $cmd): int
     {
         echo 'Available options for "' . $cmd . '"' . \PHP_EOL . \PHP_EOL;
-
         $className = __NAMESPACE__ . '\Command\\' . $cmd;
         $options = \call_user_func([new $className(), 'getUserMethods']);
-
         foreach ((array) $options as $option => $methods) {
             echo '   ' . $option . \PHP_EOL;
         }
-
         echo \PHP_EOL . 'Use as: php vendor/bin/console ' . $cmd . ' [OPTIONS]' . \PHP_EOL . \PHP_EOL;
-
         return -1;
     }
 
@@ -224,7 +217,6 @@ class ConsoleManager extends ConsoleAbstract
     public function showAvailableCommands()
     {
         echo 'Available commands:' . \PHP_EOL;
-
         foreach ($this->getAvailableCommands() as $cmd) {
             $className = __NAMESPACE__ . '\Command\\' . $cmd;
             echo '   - ' . $cmd . ' : ' . \call_user_func([new $className(), 'getDescription']) . \PHP_EOL;
@@ -274,7 +266,6 @@ class ConsoleManager extends ConsoleAbstract
         foreach ($fileNames as $fileName) {
             $fcqns[] = $this->getFullNameSpace($fileName) . '\\' . $this->getClassName($fileName);
         }
-
         return $fcqns;
     }
 
@@ -294,7 +285,6 @@ class ConsoleManager extends ConsoleAbstract
         foreach ($finder as $finderFile) {
             $fileNames[] = $finderFile->getRealPath();
         }
-
         return $fileNames;
     }
 

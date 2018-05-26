@@ -36,11 +36,12 @@ class OrderXmlTables extends ConsoleAbstract
     const RETURN_SUCCESS = 0;
     const RETURN_SRC_FOLDER_NOT_SET = 1;
     const RETURN_DST_FOLDER_NOT_SET = 2;
-    const RETURN_TAGNAME_NOT_SET = 3;
+    const RETURN_TAG_NAME_NOT_SET = 3;
     const RETURN_CANT_CREATE_FOLDER = 4;
     const RETURN_FAIL_SAVING_FILE = 5;
     const RETURN_NO_FILES = 6;
     const RETURN_SRC_FOLDER_NOT_EXISTS = 7;
+    const RETURN_INCORRECT_FILE = 8;
 
     /**
      * Folder source path.
@@ -108,6 +109,7 @@ class OrderXmlTables extends ConsoleAbstract
      * @param array $params
      *
      * @return int
+     * @throws \Exception
      */
     public function run(...$params): int
     {
@@ -195,47 +197,97 @@ class OrderXmlTables extends ConsoleAbstract
      * @param array $files
      *
      * @return int
+     * @throws \Exception
      */
     private function orderXml(array $files): int
     {
-        foreach ($files as $fileName) {
-            $xml = simplexml_load_string(file_get_contents($this->folderSrcPath . $fileName));
-            // Get all children of table into an array
-            $table = (array) $xml->children();
-            if (!isset($table['column'])) {
-                echo 'File is incorrect ' . $this->folderSrcPath . $fileName . \PHP_EOL;
-                break;
-            }
-            $columns = $table['column'];
-
-            // Call usort on the array
-            if (!\is_object($columns)) {
-                usort($columns, [$this, 'sortName']);
-            }
-
-            // Generate string XML result
-            $strXML = $this->generateXMLHeader($fileName);
-            $strXML .= $this->generateXMLContent($columns);
-            if (isset($table['constraint'])) {
-                $constraints = $table['constraint'];
-                if (!\is_object($constraints)) {
-                    usort($constraints, [$this, 'sortName']);
+        try {
+            foreach ($files as $fileName) {
+                $xml = simplexml_load_string(file_get_contents($this->folderSrcPath . $fileName));
+                // Get all children of table into an array
+                $table = (array) $xml->children();
+                $this->checkStructure($fileName, $table);
+                $dom = new DOMDocument();
+                $dom->loadXML($this->generateXML($fileName, $table));
+                $filePath = $this->folderDstPath . '/' . $fileName;
+                if ($dom->save($filePath) === false) {
+                    echo "ERROR: Can't save file " . $filePath . \PHP_EOL;
+                    return self::RETURN_FAIL_SAVING_FILE;
                 }
-                $strXML .= $this->generateXMLContent($constraints, 'constraint');
             }
-            $strXML .= $this->generateXMLFooter();
-
-            $dom = new DOMDocument();
-            $dom->loadXML($strXML);
-            $filePath = $this->folderDstPath . '/' . $fileName;
-            if ($dom->save($filePath) === false) {
-                echo "ERROR: Can't save file " . $filePath . \PHP_EOL;
-                return self::RETURN_FAIL_SAVING_FILE;
-            }
+        } catch (\Exception $e) {
+            echo $e->getMessage(), \PHP_EOL;
+            return self::RETURN_INCORRECT_FILE;
         }
-
         echo 'Finished! Look at "' . $this->folderDstPath . '"' . \PHP_EOL;
         return self::RETURN_SUCCESS;
+    }
+
+    /**
+     * Check if basic structure is correct
+     *
+     * @param string $fileName
+     * @param array  $table
+     *
+     * @throws \Exception
+     */
+    private function checkStructure(string $fileName, array $table)
+    {
+        if (!isset($table['column'])) {
+            throw new \RuntimeException(
+                'File is incorrect ' . $this->folderSrcPath . $fileName . \PHP_EOL
+                . 'File does not contain any column.' . \PHP_EOL
+                . 'Execution stopped'
+            );
+        }
+        foreach ($table as $key => $row) {
+            $item = isset($key) ? 'column' : null;
+            $item = $item ?? (isset($key) ? 'constraint' : null);
+            if ($item === null) {
+                throw new \RuntimeException(
+                    'File is incorrect ' . $this->folderSrcPath . $fileName . \PHP_EOL
+                    . 'Unexpected data ' . print_r($key, true) . ' => ' . print_r($row, true) . '.'
+                    . 'Execution stopped'
+                );
+            }
+            if (isset($row[$item]) && !isset($row[$item]['name'], $row[$item]['type'])) {
+                throw new \RuntimeException(
+                    'File is incorrect ' . $this->folderSrcPath . $fileName . \PHP_EOL
+                    . \ucfirst($item) . ' ' . print_r($row[$item], true) .  ' does not contain name or type.'
+                    . 'Execution stopped'
+                );
+            }
+        }
+    }
+
+    /**
+     * Return the final content of the XML file.
+     *
+     * @param string $fileName
+     * @param array  $table
+     *
+     * @return string
+     */
+    private function generateXML(string $fileName, array $table): string
+    {
+        $columns = $table['column'];
+        // Call usort on the array
+        if (!\is_object($columns)) {
+            usort($columns, [$this, 'sortName']);
+        }
+        // Generate string XML result
+        $strXML = $this->generateXMLHeader($fileName);
+        $strXML .= '<table>' . PHP_EOL;
+        $strXML .= $this->generateXMLContent($columns);
+        if (isset($table['constraint'])) {
+            $constraints = $table['constraint'];
+            if (!\is_object($constraints)) {
+                usort($constraints, [$this, 'sortName']);
+            }
+            $strXML .= $this->generateXMLContent($constraints, 'constraint');
+        }
+        $strXML .= '</table>';
+        return $strXML;
     }
 
     /**
@@ -275,7 +327,7 @@ class OrderXmlTables extends ConsoleAbstract
         }
         if ($this->tagName === null) {
             echo 'ERROR: Tag name not setted.' . \PHP_EOL;
-            return self::RETURN_TAGNAME_NOT_SET;
+            return self::RETURN_TAG_NAME_NOT_SET;
         }
         if (!is_dir($this->folderSrcPath)) {
             echo 'ERROR: Source folder ' . $this->folderSrcPath . ' not exists.' . \PHP_EOL;
@@ -347,18 +399,6 @@ class OrderXmlTables extends ConsoleAbstract
         $str .= '    Author     : Ordered with OrderXmlTables from FSConsoleTools' . PHP_EOL;
         $str .= '    Description: Structure for the ' . str_replace('.xml', '', $fileName) . ' table.' . PHP_EOL;
         $str .= '-->' . PHP_EOL;
-        $str .= '<table>' . PHP_EOL;
-
         return $str;
-    }
-
-    /**
-     * Generate the footer of the XML.
-     *
-     * @return string
-     */
-    private function generateXMLFooter(): string
-    {
-        return '</table>';
     }
 }

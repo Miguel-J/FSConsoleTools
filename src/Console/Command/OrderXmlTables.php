@@ -111,7 +111,10 @@ class OrderXmlTables extends ConsoleAbstract
      */
     public function run(...$params): int
     {
-        $this->checkOptions($params);
+        $status = $this->checkOptions($params);
+        if ($status < 0) {
+            return $status;
+        }
 
         $this->setFolderSrcPath($params[0] ?? \FS_FOLDER . 'Core/Table/');
         $this->setFolderDstPath($params[1] ?? \FS_FOLDER . 'Core/Table/');
@@ -240,19 +243,23 @@ class OrderXmlTables extends ConsoleAbstract
     }
 
     /**
+     * Check if options are looking for help.
+     *
      * @param array $params
+     *
+     * @return int
      */
-    private function checkOptions(array $params = [])
+    private function checkOptions(array $params = []): int
     {
         if (isset($params[0])) {
             switch ($params[0]) {
                 case '-h':
                 case '--help':
                     $this->showHelp();
-                    break;
+                    return -1;
             }
-            die();
         }
+        return 0;
     }
 
     /**

@@ -75,7 +75,7 @@ class ConsoleManager extends ConsoleAbstract
         $cmd = $this->argv[1];
 
         if (class_exists(__NAMESPACE__ . '\Command\\' . $cmd)) {
-            exit($this->execute());
+            return $this->execute();
         }
 
         echo \PHP_EOL . 'ERROR: Command "' . $cmd . '" not found.' . \PHP_EOL . \PHP_EOL;
@@ -145,7 +145,7 @@ class ConsoleManager extends ConsoleAbstract
         switch ($cmd) {
             case '-h':
             case '--help':
-                $this->getAvailableOptions($cmd);
+                $status = $this->getAvailableOptions($cmd);
                 break;
             default:
                 $className = __NAMESPACE__ . '\Command\\' . $cmd;
@@ -190,7 +190,7 @@ class ConsoleManager extends ConsoleAbstract
                 }
 
                 $this->optionNotAvailable($cmd, $alias);
-                $this->getAvailableOptions($cmd);
+                $status = $this->getAvailableOptions($cmd);
         }
         return $status;
     }
@@ -199,8 +199,10 @@ class ConsoleManager extends ConsoleAbstract
      * Returns a list of available methods for this command.
      *
      * @param string $cmd
+     *
+     * @return int
      */
-    public function getAvailableOptions(string $cmd)
+    public function getAvailableOptions(string $cmd): int
     {
         echo 'Available options for "' . $cmd . '"' . \PHP_EOL . \PHP_EOL;
 
@@ -213,7 +215,7 @@ class ConsoleManager extends ConsoleAbstract
 
         echo \PHP_EOL . 'Use as: php vendor/bin/console ' . $cmd . ' [OPTIONS]' . \PHP_EOL . \PHP_EOL;
 
-        die();
+        return -1;
     }
 
     /**

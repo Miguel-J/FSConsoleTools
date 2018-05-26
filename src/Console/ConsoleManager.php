@@ -99,7 +99,7 @@ class ConsoleManager extends ConsoleAbstract
      */
     public function showHelp()
     {
-        echo 'Use as: php console [COMMAND] [OPTIONS]' . \PHP_EOL;
+        echo 'Use as: php vendor/bin/console [COMMAND] [OPTIONS]' . \PHP_EOL;
         echo 'Available options:' . \PHP_EOL;
         echo '   -h, --help        Show this help.' . \PHP_EOL;
         echo '   -l, --list        Show a list of available commands.' . \PHP_EOL;
@@ -211,7 +211,7 @@ class ConsoleManager extends ConsoleAbstract
             echo '   ' . $option . \PHP_EOL;
         }
 
-        echo \PHP_EOL . 'Use as: php ' . $this->argv[0] . ' ' . $cmd . ' [OPTIONS]' . \PHP_EOL . \PHP_EOL;
+        echo \PHP_EOL . 'Use as: php vendor/bin/console ' . $cmd . ' [OPTIONS]' . \PHP_EOL . \PHP_EOL;
 
         die();
     }

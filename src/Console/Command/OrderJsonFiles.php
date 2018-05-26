@@ -28,6 +28,50 @@ use FacturaScriptsUtils\Console\ConsoleAbstract;
  */
 class OrderJsonFiles extends ConsoleAbstract
 {
+    /**
+     * Constant values for return, to easy know how execution ends.
+     */
+    const RETURN_SUCCESS = 0;
+    const RETURN_SRC_FOLDER_NOT_SET = 1;
+    const RETURN_DST_FOLDER_NOT_SET = 2;
+    const RETURN_CANT_CREATE_FOLDER = 3;
+    const RETURN_FAIL_SAVING_FILE = 4;
+    const RETURN_NO_FILES = 5;
+    const RETURN_SRC_FOLDER_NOT_EXISTS = 6;
+
+    /**
+     * Folder source path.
+     *
+     * @var string
+     */
+    private $folderSrcPath;
+
+    /**
+     * Folder destiny path.
+     *
+     * @var string
+     */
+    private $folderDstPath;
+
+    /**
+     * Set default source folder.
+     *
+     * @param string $folderSrcPath
+     */
+    public function setFolderSrcPath($folderSrcPath)
+    {
+        $this->folderSrcPath = $folderSrcPath;
+    }
+
+    /**
+     * Set default destiny folder.
+     *
+     * @param string $folderDstPath
+     */
+    public function setFolderDstPath($folderDstPath)
+    {
+        $this->folderDstPath = $folderDstPath;
+    }
 
     /**
      * Start point to run the command.
@@ -38,7 +82,32 @@ class OrderJsonFiles extends ConsoleAbstract
      */
     public function run(...$params): int
     {
-        // TODO: Implement run() method.
+        $this->checkOptions($params);
+
+        $this->setFolderSrcPath($params[0] ?? \FS_FOLDER . 'Core/Translation/');
+        $this->setFolderDstPath($params[1] ?? \FS_FOLDER . 'Core/Translation/');
+
+        echo 'Options setted:' . \PHP_EOL;
+        echo '   Source path: ' . $this->folderSrcPath . \PHP_EOL;
+        echo '   Destiny path: ' . $this->folderDstPath . \PHP_EOL;
+        if (!$this->areYouSure()) {
+            echo '   Options [SRC] [DST] [TAG]' . \PHP_EOL;
+            return self::RETURN_SUCCESS;
+        }
+
+        $status = $this->check();
+        if ($status > 0) {
+            return $status;
+        }
+
+        $files = array_diff(scandir($this->folderSrcPath, SCANDIR_SORT_ASCENDING), ['.', '..']);
+
+        if (\count($files) === 0) {
+            echo 'ERROR: No files on folder' . \PHP_EOL;
+            return self::RETURN_NO_FILES;
+        }
+
+        return $this->orderJson($files);
     }
 
     /**
@@ -48,7 +117,7 @@ class OrderJsonFiles extends ConsoleAbstract
      */
     public function getDescription(): string
     {
-        // TODO: Implement getDescription() method.
+        return 'Order JSON content files by key.';
     }
 
     /**
@@ -56,6 +125,109 @@ class OrderJsonFiles extends ConsoleAbstract
      */
     public function showHelp()
     {
-        // TODO: Implement showHelp() method.
+        $array = \explode('\\', __CLASS__);
+        $class = array_pop($array);
+        echo 'Use as: php vendor/bin/console ' . $class . ' [OPTIONS]' . \PHP_EOL;
+        echo 'Available options:' . \PHP_EOL;
+        echo '   -h, --help        Show this help.' . \PHP_EOL;
+        echo \PHP_EOL;
+        echo '   OPTION1           Source path' . \PHP_EOL;
+        echo '   OPTION2           Destiny path' . \PHP_EOL;
+        echo \PHP_EOL;
+    }
+
+    /**
+     * @param array $params
+     */
+    private function checkOptions(array $params = [])
+    {
+        if (isset($params[0])) {
+            switch ($params[0]) {
+                case '-h':
+                case '--help':
+                    $this->showHelp();
+                    break;
+            }
+            die();
+        }
+    }
+
+    /**
+     * Launch basic checks.
+     *
+     * @return int
+     */
+    private function check(): int
+    {
+        if ($this->folderSrcPath === null) {
+            echo 'ERROR: Source folder not setted.' . \PHP_EOL;
+            return self::RETURN_SRC_FOLDER_NOT_SET;
+        }
+
+        if ($this->folderDstPath === null) {
+            echo 'ERROR: Destiny folder not setted.' . \PHP_EOL;
+            return self::RETURN_DST_FOLDER_NOT_SET;
+        }
+
+        if (!is_dir($this->folderSrcPath)) {
+            echo 'ERROR: Source folder ' . $this->folderSrcPath . ' not exists.' . \PHP_EOL;
+            return self::RETURN_SRC_FOLDER_NOT_EXISTS;
+        }
+
+        if (!is_file($this->folderDstPath) && !@mkdir($this->folderDstPath) && !is_dir($this->folderDstPath)) {
+            echo "ERROR: Can't create folder " . $this->folderDstPath;
+            return self::RETURN_CANT_CREATE_FOLDER;
+        }
+
+        return self::RETURN_SUCCESS;
+    }
+
+    /**
+     * Order JSON files
+     *
+     * @param array $files
+     *
+     * @return int
+     */
+    private function orderJson($files): int
+    {
+        foreach ($files as $fileName) {
+            $arrayContent = $this->readJSON($this->folderSrcPath . $fileName);
+            \ksort($arrayContent);
+            if ($this->saveJSON($arrayContent, $this->folderDstPath . $fileName)) {
+                echo '   - File ' . $fileName . ' ordered.' . \PHP_EOL;
+            } else {
+                echo '   - File ' . $fileName . 'can\'t be saved.' . \PHP_EOL;
+            }
+        }
+
+        echo 'Finished! Look at "' . $this->folderDstPath . '"' . \PHP_EOL;
+        return self::RETURN_SUCCESS;
+    }
+
+    /**
+     * Reads a JSON from disc and return it content as array.
+     *
+     * @param string $pathName
+     *
+     * @return mixed
+     */
+    private function readJSON(string $pathName)
+    {
+        return json_decode(file_get_contents($pathName), true);
+    }
+
+    /**
+     * Write a JSON from an array to disc and return its result.
+     *
+     * @param array $data
+     * @param string $pathName
+     *
+     * @return bool|int
+     */
+    private function saveJSON(array $data, string $pathName)
+    {
+        $jsonData = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        return file_put_contents($pathName, $jsonData);
     }
 }

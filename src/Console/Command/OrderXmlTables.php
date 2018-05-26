@@ -104,8 +104,8 @@ class OrderXmlTables extends ConsoleAbstract
     {
         $this->checkOptions($params);
 
-        $this->setFolderSrcPath($params[0] ?? \FS_FOLDER . '/Core/Table/');
-        $this->setFolderDstPath($params[1] ?? \FS_FOLDER . '/Core/Table/');
+        $this->setFolderSrcPath($params[0] ?? \FS_FOLDER . 'Core/Table/');
+        $this->setFolderDstPath($params[1] ?? \FS_FOLDER . 'Core/Table/');
         $this->setTagName($params[2] ?? 'name');
 
         echo 'Options setted:' . \PHP_EOL;
@@ -113,7 +113,7 @@ class OrderXmlTables extends ConsoleAbstract
         echo '   Destiny path: ' . $this->folderDstPath . \PHP_EOL;
         echo '   Tag name: ' . $this->tagName . \PHP_EOL;
         if (!$this->areYouSure()) {
-            echo 'Run as: php ' . __CLASS__ . ' [SRC] [DST] [TAG]' . \PHP_EOL;
+            echo '   Options [SRC] [DST] [TAG]' . \PHP_EOL;
             return self::RETURN_SUCCESS;
         }
 
@@ -202,7 +202,7 @@ class OrderXmlTables extends ConsoleAbstract
     {
         $array = \explode('\\', __CLASS__);
         $class = array_pop($array);
-        echo 'Use as: php console ' . $class . ' [OPTIONS]' . \PHP_EOL;
+        echo 'Use as: php vendor/bin/console ' . $class . ' [OPTIONS]' . \PHP_EOL;
         echo 'Available options:' . \PHP_EOL;
         echo '   -h, --help        Show this help.' . \PHP_EOL;
         echo \PHP_EOL;

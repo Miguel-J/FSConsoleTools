@@ -148,7 +148,7 @@ class ConsoleManager extends ConsoleAbstract
                 $this->getAvailableOptions($cmd);
                 break;
             default:
-                $className = __NAMESPACE__ . '\\' . $cmd;
+                $className = __NAMESPACE__ . '\Command\\' . $cmd;
                 $methods = \call_user_func([new $className(), 'getUserMethods']);
                 // Forced in ConsoleAbstract, but we don't want to show it to users
                 $methods['run'] = 'run';
@@ -204,7 +204,7 @@ class ConsoleManager extends ConsoleAbstract
     {
         echo 'Available options for "' . $cmd . '"' . \PHP_EOL . \PHP_EOL;
 
-        $className = __NAMESPACE__ . '\\' . $cmd;
+        $className = __NAMESPACE__ . '\Command\\' . $cmd;
         $options = \call_user_func([new $className(), 'getUserMethods']);
 
         foreach ((array) $options as $option => $methods) {
@@ -224,7 +224,7 @@ class ConsoleManager extends ConsoleAbstract
         echo 'Available commands:' . \PHP_EOL;
 
         foreach ($this->getAvailableCommands() as $cmd) {
-            $className = __NAMESPACE__ . '\\' . $cmd;
+            $className = __NAMESPACE__ . '\Command\\' . $cmd;
             echo '   - ' . $cmd . ' : ' . \call_user_func([new $className(), 'getDescription']) . \PHP_EOL;
         }
         echo \PHP_EOL;
@@ -238,7 +238,7 @@ class ConsoleManager extends ConsoleAbstract
     public function getAvailableCommands(): array
     {
         $available = [];
-        $allClasses = $this->getAllFcqns(__DIR__);
+        $allClasses = $this->getAllFcqns(__DIR__ . '/Command');
         $exclude = [__NAMESPACE__ . '\\' . 'ConsoleManager', __NAMESPACE__ . '\\' . 'ConsoleAbstract'];
         foreach ($allClasses as $class) {
             if (0 === \strpos($class, __NAMESPACE__ . '\\') && !\in_array($class, $exclude, false)) {

@@ -19,8 +19,14 @@
 
 namespace FacturaScriptsUtils\Console;
 
+const DS = DIRECTORY_SEPARATOR;
+
 if (!\defined('FS_FOLDER')) {
-    define('FS_FOLDER', __DIR__ . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS);
+    \define('FS_FOLDER', __DIR__ . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS);
+}
+
+if (!\defined('FS_DEBUG')) {
+    \define('FS_DEBUG', true);
 }
 
 /**

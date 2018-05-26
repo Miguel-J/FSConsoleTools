@@ -67,43 +67,44 @@ if (!defined('FS_DEBUG')) {
     define('FS_DEBUG', false);
 }
 
+
 echo 'Fixing XML tables...' . PHP_EOL;
 $order = new FacturaScriptsUtils\Console\Command\OrderXmlTables();
 $srcPath = FS_FOLDER . 'Core' . DS . 'Table' . DS;
-$order->setFolderSrcPath($srcPath);
-$order->setFolderDstPath($srcPath);
-$order->setTagName('name');
-$exitCode = $order->run();
+$exitCode = $order->setFolderSrcPath($srcPath)
+    ->setFolderDstPath($srcPath)
+    ->setTagName('name')
+    ->run();
 if ($exitCode>0) {
     exit($exitCode);
 }
 
-echo PHP_EOL . PHP_EOL;
 
+echo PHP_EOL . PHP_EOL;
 echo 'Fixing JSON files...' . PHP_EOL;
 $order = new FacturaScriptsUtils\Console\Command\OrderJsonFiles();
 $srcPath = FS_FOLDER . 'Core' . DS . 'Translation' . DS;
-$order->setFolderSrcPath($srcPath);
-$order->setFolderDstPath($srcPath);
-$exitCode = $order->run();
+$exitCode = $order->setFolderSrcPath($srcPath)
+    ->setFolderDstPath($srcPath)
+    ->run();
 if ($exitCode>0) {
     exit($exitCode);
 }
 
-echo PHP_EOL . PHP_EOL;
 
+echo PHP_EOL . PHP_EOL;
 echo 'Runing PHPCBF...' . PHP_EOL;
 $output = shell_exec('vendor/bin/phpcbf --tab-width=4 --encoding=utf-8 --standard=phpcs.xml Core -s');
 echo $output;
 
-echo PHP_EOL . PHP_EOL;
 
+echo PHP_EOL . PHP_EOL;
 echo 'Runing PHPCS...' . PHP_EOL;
 $output = shell_exec('vendor/bin/phpcs --tab-width=4 --encoding=utf-8 --standard=phpcs.xml Core -s');
 echo $output;
 
-echo PHP_EOL . PHP_EOL;
 
+echo PHP_EOL . PHP_EOL;
 echo 'Runing PHPUnit test...' . PHP_EOL;
 $output = shell_exec('vendor/bin/phpunit --configuration phpunit.xml');
 echo $output;

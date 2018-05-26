@@ -27,9 +27,9 @@ require_once FS_FOLDER . 'vendor' . DS . 'autoload.php';
 
 $order = new FacturaScriptsUtils\Console\Command\OrderXmlTables();
 $srcPath = FS_FOLDER . 'Core' . DS . 'Table' . DS;
-$order->setFolderSrcPath($srcPath);
-$order->setFolderDstPath($srcPath);
-$order->setTagName('name');
-$exitCode = $order->run();
+$exitCode = $order->setFolderSrcPath($srcPath)
+    ->setFolderDstPath($srcPath)
+    ->setTagName('name')
+    ->run();
 
 exit($exitCode);

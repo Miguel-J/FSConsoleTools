@@ -57,20 +57,26 @@ class OrderJsonFiles extends ConsoleAbstract
      * Set default source folder.
      *
      * @param string $folderSrcPath
+     *
+     * @return $this
      */
-    public function setFolderSrcPath($folderSrcPath)
+    public function setFolderSrcPath(string $folderSrcPath): self
     {
         $this->folderSrcPath = $folderSrcPath;
+        return $this;
     }
 
     /**
      * Set default destiny folder.
      *
      * @param string $folderDstPath
+     *
+     * @return $this
      */
-    public function setFolderDstPath($folderDstPath)
+    public function setFolderDstPath(string $folderDstPath): self
     {
         $this->folderDstPath = $folderDstPath;
+        return $this;
     }
 
     /**
@@ -185,7 +191,7 @@ class OrderJsonFiles extends ConsoleAbstract
      *
      * @return int
      */
-    private function orderJson($files): int
+    private function orderJson(array $files): int
     {
         foreach ($files as $fileName) {
             $arrayContent = $this->readJSON($this->folderSrcPath . $fileName);
@@ -204,11 +210,12 @@ class OrderJsonFiles extends ConsoleAbstract
      *
      * @param string $pathName
      *
-     * @return mixed
+     * @return array
      */
     private function readJSON(string $pathName)
     {
-        return json_decode(file_get_contents($pathName), true);
+        $data = json_decode(file_get_contents($pathName), true);
+        return \is_array($data) ? (array) $data : [];
     }
 
     /**
@@ -217,11 +224,11 @@ class OrderJsonFiles extends ConsoleAbstract
      * @param array  $data
      * @param string $pathName
      *
-     * @return bool|int
+     * @return int
      */
-    private function saveJSON(array $data, string $pathName)
+    private function saveJSON(array $data, string $pathName): int
     {
         $jsonData = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        return file_put_contents($pathName, $jsonData);
+        return (int) file_put_contents($pathName, $jsonData);
     }
 }

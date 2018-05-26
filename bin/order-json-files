@@ -27,8 +27,8 @@ require_once FS_FOLDER . 'vendor' . DS . 'autoload.php';
 
 $order = new FacturaScriptsUtils\Console\Command\OrderJsonFiles();
 $srcPath = FS_FOLDER . 'Core' . DS . 'Translation' . DS;
-$order->setFolderSrcPath($srcPath);
-$order->setFolderDstPath($srcPath);
-$exitCode = $order->run();
+$exitCode = $order->setFolderSrcPath($srcPath)
+    ->setFolderDstPath($srcPath)
+    ->run();
 
 exit($exitCode);

@@ -34,7 +34,7 @@ class ConsoleManager extends ConsoleAbstract
      * @param int   $argc
      * @param array $argv
      */
-    public function __construct($argc, $argv)
+    public function __construct(int $argc, array $argv)
     {
         $this->argv = $argv;
 
@@ -68,7 +68,7 @@ class ConsoleManager extends ConsoleAbstract
      *
      * @param array $params
      *
-     * @return mixed
+     * @return int
      */
     public function run(...$params): int
     {
@@ -81,7 +81,7 @@ class ConsoleManager extends ConsoleAbstract
         echo \PHP_EOL . 'ERROR: Command "' . $cmd . '" not found.' . \PHP_EOL . \PHP_EOL;
 
         $this->showHelp();
-        die();
+        return -1;
     }
 
     /**
@@ -131,9 +131,9 @@ class ConsoleManager extends ConsoleAbstract
     /**
      * Exec the command with the given options
      *
-     * @return mixed
+     * @return int
      */
-    public function execute()
+    public function execute(): int
     {
         $status = -1;
         $params = $this->argv;
@@ -163,11 +163,11 @@ class ConsoleManager extends ConsoleAbstract
                     if (\in_array($method, \get_class_methods($className), false) ||
                         \in_array($method, \get_class_methods(\get_parent_class($className)), false)
                     ) {
-                        $status = \call_user_func_array([new $className(), 'run'], $params);
+                        $status = (int) \call_user_func_array([new $className(), 'run'], $params);
                         break;
                     }
                     // Can be deleted, but starting with this can be helpful
-                    if (FS_DEBUG) {
+                    if (\FS_DEBUG) {
                         $msg = '#######################################################################################'
                             . \PHP_EOL . '# ERROR: "' . $method . '" not defined in "' . $className . '"' . \PHP_EOL
                             . '#    Maybe you have a misspelling on the method name or is a missing declaration?'
@@ -180,7 +180,7 @@ class ConsoleManager extends ConsoleAbstract
                 }
 
                 // Can be deleted, but starting with this can be helpful
-                if (FS_DEBUG) {
+                if (\FS_DEBUG) {
                     $msg = '#######################################################################################'
                         . \PHP_EOL . '# ERROR: "' . $alias . '" not in "getUserMethods" for "' . $className . '"'
                         . \PHP_EOL . '#    Maybe you are missing to put it in to getUserMethods?' . \PHP_EOL
@@ -200,7 +200,7 @@ class ConsoleManager extends ConsoleAbstract
      *
      * @param string $cmd
      */
-    public function getAvailableOptions($cmd)
+    public function getAvailableOptions(string $cmd)
     {
         echo 'Available options for "' . $cmd . '"' . \PHP_EOL . \PHP_EOL;
 
@@ -253,7 +253,7 @@ class ConsoleManager extends ConsoleAbstract
      * @param string $cmd
      * @param string $option
      */
-    private function optionNotAvailable($cmd, $option)
+    private function optionNotAvailable(string $cmd, string $option)
     {
         echo 'Option "' . $option . '" not available for "' . $cmd . '".' . \PHP_EOL . \PHP_EOL;
     }
@@ -265,7 +265,7 @@ class ConsoleManager extends ConsoleAbstract
      *
      * @return array
      */
-    private function getAllFcqns($projectRoot): array
+    private function getAllFcqns(string $projectRoot): array
     {
         $fileNames = $this->getFileNames($projectRoot);
         $fcqns = [];
@@ -284,7 +284,7 @@ class ConsoleManager extends ConsoleAbstract
      *
      * @return array
      */
-    private function getFileNames($path, $pattern = '*.php'): array
+    private function getFileNames(string $path, string $pattern = '*.php'): array
     {
         $finder = new Finder();
         $finder->files()->in($path)->name($pattern);
@@ -301,16 +301,19 @@ class ConsoleManager extends ConsoleAbstract
      *
      * @param string $fileName
      *
-     * @return mixed
+     * @return string
      */
-    private function getFullNameSpace($fileName)
+    private function getFullNameSpace(string $fileName): string
     {
         $lines = file($fileName);
+        if (\is_bool($lines)) {
+            return '';
+        }
         $array = preg_grep('/^namespace /', $lines);
         $namespaceLine = array_shift($array);
         $matches = [];
         preg_match('/^namespace (.*);$/', $namespaceLine, $matches);
-        return array_pop($matches);
+        return (string) array_pop($matches);
     }
 
     /**
@@ -318,13 +321,13 @@ class ConsoleManager extends ConsoleAbstract
      *
      * @param string $fileName
      *
-     * @return mixed
+     * @return array
      */
-    private function getClassName($fileName)
+    private function getClassName(string $fileName): array
     {
         $dirsAndFile = explode(DIRECTORY_SEPARATOR, $fileName);
         $fileName = array_pop($dirsAndFile);
         $nameAndExt = explode('.', $fileName);
-        return array_shift($nameAndExt);
+        return (array) array_shift($nameAndExt);
     }
 }

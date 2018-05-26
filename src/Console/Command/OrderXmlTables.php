@@ -67,30 +67,39 @@ class OrderXmlTables extends ConsoleAbstract
      * Set default source folder.
      *
      * @param string $folderSrcPath
+     *
+     * @return $this
      */
-    public function setFolderSrcPath($folderSrcPath)
+    public function setFolderSrcPath(string $folderSrcPath): self
     {
         $this->folderSrcPath = $folderSrcPath;
+        return $this;
     }
 
     /**
      * Set default destiny folder.
      *
      * @param string $folderDstPath
+     *
+     * @return $this
      */
-    public function setFolderDstPath($folderDstPath)
+    public function setFolderDstPath(string $folderDstPath): self
     {
         $this->folderDstPath = $folderDstPath;
+        return $this;
     }
 
     /**
      * Set tag name.
      *
      * @param string $tagName
+     *
+     * @return $this
      */
-    public function setTagName($tagName)
+    public function setTagName(string $tagName): self
     {
         $this->tagName = $tagName;
+        return $this;
     }
 
     /**
@@ -184,7 +193,7 @@ class OrderXmlTables extends ConsoleAbstract
      *
      * @return int
      */
-    private function orderXml($files): int
+    private function orderXml(array $files): int
     {
         foreach ($files as $fileName) {
             $xml = simplexml_load_string(file_get_contents($this->folderSrcPath . $fileName));
@@ -284,7 +293,7 @@ class OrderXmlTables extends ConsoleAbstract
      *
      * @return int
      */
-    private function sortName($xmlA, $xmlB): int
+    private function sortName(SimpleXMLElement $xmlA, SimpleXMLElement $xmlB): int
     {
         return strcasecmp($xmlA->{$this->tagName}, $xmlB->{$this->tagName});
     }
@@ -327,7 +336,7 @@ class OrderXmlTables extends ConsoleAbstract
      *
      * @return string
      */
-    private function generateXMLHeader($fileName): string
+    private function generateXMLHeader(string $fileName): string
     {
         $str = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
         $str .= '<!--' . PHP_EOL;

@@ -21,7 +21,9 @@
     },
     "bin": [
         "bin/console",
-        "bin/order-xml-tables"
+        "bin/order-xml-tables",
+        "bin/order-json-files",
+        "bin/run-before-pull-request"
     ],
     "require-dev": {
         "roave/security-advisories": "dev-master",

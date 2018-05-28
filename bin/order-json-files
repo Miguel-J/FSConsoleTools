@@ -26,9 +26,9 @@ define('FS_FOLDER', __DIR__ . DS . '..' . DS . '..' . DS . '..' . DS . '..' . DS
 require_once FS_FOLDER . 'vendor' . DS . 'autoload.php';
 
 $order = new FacturaScriptsUtils\Console\Command\OrderJsonFiles();
-$srcPath = FS_FOLDER . 'Core' . DS . 'Translation' . DS;
-$exitCode = $order->setFolderSrcPath($srcPath)
-    ->setFolderDstPath($srcPath)
+$srcFolder = FS_FOLDER . 'Core' . DS . 'Translation' . DS;
+$exitCode = $order->setSrcFolder($srcFolder)
+    ->setDstFolder($srcFolder)
     ->run();
 
 exit($exitCode);

@@ -53,6 +53,20 @@ abstract class ConsoleAbstract
     protected $dataBase;
 
     /**
+     * Developer name.
+     *
+     * @var string
+     */
+    private $devName;
+
+    /**
+     * Developer email.
+     *
+     * @var string
+     */
+    private $devMail;
+
+    /**
      * Start point to run the command.
      *
      * @param array $params
@@ -75,6 +89,14 @@ abstract class ConsoleAbstract
      */
     abstract public function getHelpMsg(): string;
 
+    /**
+     * ConsoleAbstract constructor.
+     */
+    public function __construct()
+    {
+        $this->setDevName('YOUR NAME');
+        $this->setDevMail('YOUR@EMAIL');
+    }
     /**
      * Initialize.
      */
@@ -136,5 +158,78 @@ abstract class ConsoleAbstract
             default:
                 return $autoReply;
         }
+    }
+
+    /**
+     * Set database.
+     *
+     * @param DataBase $dataBase
+     */
+    public function setDataBase(DataBase $dataBase)
+    {
+        $this->dataBase = $dataBase;
+    }
+
+    /**
+     * Return the DataBase object.
+     *
+     * @return DataBase
+     */
+    public function getDataBase()
+    {
+        return $this->dataBase;
+    }
+
+    /**
+     * Returns developer name.
+     *
+     * @return string
+     */
+    public function getDevName(): string
+    {
+        return $this->devName;
+    }
+
+    /**
+     * Sets developer name.
+     *
+     * @param string $devName
+     */
+    public function setDevName(string $devName)
+    {
+        $this->devName = $devName;
+    }
+
+    /**
+     * Returns developer email.
+     *
+     * @return string
+     */
+    public function getDevMail(): string
+    {
+        return $this->devMail;
+    }
+
+    /**
+     * Sets developer email
+     *
+     * @param string $devMail
+     */
+    public function setDevMail(string $devMail)
+    {
+        $this->devMail = $devMail;
+    }
+
+    /**
+     * Save file.
+     *
+     * @param string $pathName
+     * @param string $content
+     *
+     * @return bool|int
+     */
+    protected function saveFile(string $pathName, string $content)
+    {
+        return file_put_contents($pathName, $content);
     }
 }

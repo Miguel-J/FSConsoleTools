@@ -70,9 +70,9 @@ if (!\defined('FS_DEBUG')) {
 
 echo 'Fixing XML tables...' . PHP_EOL;
 $order = new FacturaScriptsUtils\Console\Command\OrderXmlTables();
-$srcPath = FS_FOLDER . 'Core' . DS . 'Table' . DS;
-$exitCode = $order->setFolderSrcPath($srcPath)
-    ->setFolderDstPath($srcPath)
+$srcFolder = FS_FOLDER . 'Core' . DS . 'Table' . DS;
+$exitCode = $order->setSrcFolder($srcFolder)
+    ->setDstFolder($srcFolder)
     ->setTagName('name')
     ->run();
 if ($exitCode !== 0) {
@@ -83,9 +83,9 @@ if ($exitCode !== 0) {
 echo PHP_EOL . PHP_EOL;
 echo 'Fixing JSON files...' . PHP_EOL;
 $order = new FacturaScriptsUtils\Console\Command\OrderJsonFiles();
-$srcPath = FS_FOLDER . 'Core' . DS . 'Translation' . DS;
-$exitCode = $order->setFolderSrcPath($srcPath)
-    ->setFolderDstPath($srcPath)
+$srcFolder = FS_FOLDER . 'Core' . DS . 'Translation' . DS;
+$exitCode = $order->setSrcFolder($srcFolder)
+    ->setDstFolder($srcFolder)
     ->run();
 if ($exitCode !== 0) {
     exit($exitCode);

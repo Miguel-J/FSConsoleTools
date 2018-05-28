@@ -19,11 +19,7 @@
 
 namespace FacturaScriptsUtils\Console\Command;
 
-use FacturaScripts\Core\Base\DataBase;
 use FacturaScriptsUtils\Console\ConsoleAbstract;
-use Twig_Environment;
-use Twig_Extension_Debug;
-use Twig_Loader_Filesystem;
 
 if (!\defined('DB_CONNECTION')) {
     \define('DB_CONNECTION', false);
@@ -50,27 +46,6 @@ class GeneratePhpModel extends ConsoleAbstract
     const RETURN_FAIL_SAVING_FILE = 6;
 
     /**
-     * Name of the table.
-     *
-     * @var string
-     */
-    private $tableName;
-
-    /**
-     * Name of the model.
-     *
-     * @var string
-     */
-    private $modelName;
-
-    /**
-     * Folder destiny path.
-     *
-     * @var string
-     */
-    private $folderDstPath;
-
-    /**
      * Start point to run the command.
      *
      * @param array $params
@@ -95,9 +70,9 @@ class GeneratePhpModel extends ConsoleAbstract
 
         echo 'Generating Model class file' . \PHP_EOL . \PHP_EOL;
         echo '   Options setted:' . \PHP_EOL;
-        echo '      Table name: ' . $this->tableName . \PHP_EOL;
-        echo '      Model name: ' . $this->modelName . \PHP_EOL;
-        echo '      Destiny path: ' . $this->folderDstPath . \PHP_EOL;
+        echo '      Table name: ' . $this->getTableName() . \PHP_EOL;
+        echo '      Model name: ' . $this->getModelName() . \PHP_EOL;
+        echo '      Destiny path: ' . $this->getDstFolder() . \PHP_EOL;
 
         if (!$this->areYouSure()) {
             echo '   Options [TABLE NAME] [MODEL NAME] [DST]' . \PHP_EOL;
@@ -165,105 +140,6 @@ class GeneratePhpModel extends ConsoleAbstract
     }
 
     /**
-     * Return a list of tables.
-     *
-     * @return string
-     */
-    public function getTablesMsg(): string
-    {
-        return \implode(', ', $this->getTables($this->dataBase));
-    }
-
-    /**
-     * Set table name to use.
-     *
-     * @param string $tableName
-     *
-     * @return $this
-     */
-    public function setTableName(string $tableName): self
-    {
-        $this->tableName = $tableName;
-        return $this;
-    }
-
-    /**
-     * Set the model name to use.
-     *
-     * @param string $modelName
-     *
-     * @return $this
-     */
-    public function setModelName(string $modelName): self
-    {
-        $this->modelName = $modelName;
-        return $this;
-    }
-
-    /**
-     * Set destiny folder.
-     *
-     * @param string $folderDstPath
-     *
-     * @return $this
-     */
-    public function setFolderDstPath(string $folderDstPath): self
-    {
-        $this->folderDstPath = $folderDstPath;
-        return $this;
-    }
-
-    /**
-     * Set database.
-     *
-     * @param DataBase $dataBase
-     */
-    public function setDataBase(DataBase $dataBase)
-    {
-        $this->dataBase = $dataBase;
-    }
-
-    /**
-     * Return the table name.
-     *
-     * @return string
-     */
-    public function getTableName(): string
-    {
-        return $this->tableName;
-    }
-
-    /**
-     * Return the model name.
-     *
-     * @return string
-     */
-    public function getModelName(): string
-    {
-        return $this->modelName;
-    }
-
-    /**
-     * Return the folder destiny path.
-     *
-     * @return string
-     */
-    public function getFolderDstPath(): string
-    {
-        return $this->folderDstPath;
-    }
-
-    /**
-     * Return the DataBase object.
-     *
-     * @return DataBase
-     */
-    public function getDataBase()
-    {
-        return $this->dataBase;
-    }
-
-    /**
      * Check if options are looking for help.
      *
      * @param array $params
@@ -287,7 +163,7 @@ class GeneratePhpModel extends ConsoleAbstract
                 case '--gen':
                     $this->setTableName($params[1] ?? '');
                     $this->setModelName($params[2] ?? '');
-                    $this->setFolderDstPath(\FS_FOLDER . ($params[3] ?? 'Core/Model'));
+                    $this->setDstFolder(\FS_FOLDER . ($params[3] ?? 'Core/Model'));
                     $this->setDataBase($params[4]);
             }
         }
@@ -321,23 +197,23 @@ class GeneratePhpModel extends ConsoleAbstract
      */
     private function check(): int
     {
-        if ($this->tableName === null) {
+        if ($this->getTableName() === null) {
             echo 'ERROR: Table name not setted.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_TABLE_NAME_NOT_SET;
         }
-        if ($this->modelName === null) {
+        if ($this->getModelName() === null) {
             echo 'ERROR: Model name not setted.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_MODEL_NAME_NOT_SET;
         }
-        if ($this->folderDstPath === null) {
+        if ($this->getDstFolder() === null) {
             echo 'ERROR: Destiny folder not setted.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_DST_FOLDER_NOT_SET;
         }
-        if (!is_file($this->folderDstPath) && !@mkdir($this->folderDstPath) && !is_dir($this->folderDstPath)) {
-            echo "ERROR: Can't create folder " . $this->folderDstPath . '.' . \PHP_EOL . \PHP_EOL;
+        if (!is_file($this->getDstFolder()) && !@mkdir($this->getDstFolder()) && !is_dir($this->getDstFolder())) {
+            echo "ERROR: Can't create folder " . $this->getDstFolder() . '.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_CANT_CREATE_FOLDER;
         }
-        if (!\in_array($this->tableName, $this->dataBase->getTables(), false)) {
+        if (!\in_array($this->getTableName(), $this->dataBase->getTables(), false)) {
             echo 'ERROR: Table not exists.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_TABLE_NOT_EXISTS;
         }
@@ -351,33 +227,20 @@ class GeneratePhpModel extends ConsoleAbstract
      */
     private function generateModel(): int
     {
-        $loader = new Twig_Loader_Filesystem([__DIR__ . '/../Template']);
-        $twig = new Twig_Environment($loader, ['debug' => \FS_DEBUG,]);
-        $twig->addExtension(new Twig_Extension_Debug());
+        $loader = new \Twig_Loader_Filesystem([__DIR__ . '/../Template']);
+        $twig = new \Twig_Environment($loader, ['debug' => \FS_DEBUG,]);
+        $twig->addExtension(new \Twig_Extension_Debug());
         $txt = $twig->render(
             'Model.php.twig',
             ['fsc' => $this]
         );
 
-        $status = $this->saveFile($this->folderDstPath . $this->modelName . '.php', $txt);
+        $status = $this->saveFile($this->getDstFolder() . $this->getModelName() . '.php', $txt);
         if (\is_bool($status)) {
-            echo "Can't save " . $this->folderDstPath . $this->modelName . '.php"' . \PHP_EOL;
+            echo "Can't save " . $this->getDstFolder() . $this->getModelName() . '.php"' . \PHP_EOL;
             return $status;
         }
-        echo 'Finished! Look at "' . $this->folderDstPath . '"' . \PHP_EOL;
+        echo 'Finished! Look at "' . $this->getDstFolder() . '"' . \PHP_EOL;
         return self::RETURN_SUCCESS;
-    }
-
-    /**
-     * Save file.
-     *
-     * @param string $pathName
-     * @param string $content
-     *
-     * @return bool|int
-     */
-    private function saveFile(string $pathName, string $content)
-    {
-        return file_put_contents($pathName, $content);
     }
 }

@@ -45,38 +45,38 @@ class OrderJsonFiles extends ConsoleAbstract
      *
      * @var string
      */
-    private $folderSrcPath;
+    private $srcFolder;
 
     /**
      * Folder destiny path.
      *
      * @var string
      */
-    private $folderDstPath;
+    private $dstFolder;
 
     /**
      * Set default source folder.
      *
-     * @param string $folderSrcPath
+     * @param string $srcFolder
      *
      * @return $this
      */
-    public function setFolderSrcPath(string $folderSrcPath): self
+    public function setSrcFolder(string $srcFolder): self
     {
-        $this->folderSrcPath = $folderSrcPath;
+        $this->srcFolder = $srcFolder;
         return $this;
     }
 
     /**
      * Set default destiny folder.
      *
-     * @param string $folderDstPath
+     * @param string $dstFolder
      *
      * @return $this
      */
-    public function setFolderDstPath(string $folderDstPath): self
+    public function setDstFolder(string $dstFolder): self
     {
-        $this->folderDstPath = $folderDstPath;
+        $this->dstFolder = $dstFolder;
         return $this;
     }
 
@@ -94,13 +94,13 @@ class OrderJsonFiles extends ConsoleAbstract
             return $status;
         }
 
-        $this->setFolderSrcPath(\FS_FOLDER . ($params[0] ?? 'Core/Translation/'));
-        $this->setFolderDstPath(\FS_FOLDER . ($params[1] ?? 'Core/Translation/'));
+        $this->setSrcFolder(\FS_FOLDER . ($params[0] ?? 'Core/Translation/'));
+        $this->setDstFolder(\FS_FOLDER . ($params[1] ?? 'Core/Translation/'));
 
         echo 'Ordering JSON content' . \PHP_EOL . \PHP_EOL;
         echo '   Options setted:' . \PHP_EOL;
-        echo '      Source path: ' . $this->folderSrcPath . \PHP_EOL;
-        echo '      Destiny path: ' . $this->folderDstPath . \PHP_EOL;
+        echo '      Source path: ' . $this->srcFolder . \PHP_EOL;
+        echo '      Destiny path: ' . $this->dstFolder . \PHP_EOL;
 
         if (!$this->areYouSure()) {
             echo '   Options [SRC] [DST] [TAG]' . \PHP_EOL;
@@ -112,7 +112,7 @@ class OrderJsonFiles extends ConsoleAbstract
             return $status;
         }
 
-        $files = FileManager::scanFolder($this->folderSrcPath);
+        $files = FileManager::scanFolder($this->srcFolder);
 
         if (\count($files) === 0) {
             echo 'ERROR: No files on folder' . \PHP_EOL . \PHP_EOL;
@@ -177,20 +177,20 @@ class OrderJsonFiles extends ConsoleAbstract
      */
     private function check(): int
     {
-        if ($this->folderSrcPath === null) {
+        if ($this->srcFolder === null) {
             echo 'ERROR: Source folder not setted.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_SRC_FOLDER_NOT_SET;
         }
-        if ($this->folderDstPath === null) {
+        if ($this->dstFolder === null) {
             echo 'ERROR: Destiny folder not setted.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_DST_FOLDER_NOT_SET;
         }
-        if (!is_dir($this->folderSrcPath)) {
-            echo 'ERROR: Source folder ' . $this->folderSrcPath . ' not exists.' . \PHP_EOL . \PHP_EOL;
+        if (!is_dir($this->srcFolder)) {
+            echo 'ERROR: Source folder ' . $this->srcFolder . ' not exists.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_SRC_FOLDER_NOT_EXISTS;
         }
-        if (!is_file($this->folderDstPath) && !@mkdir($this->folderDstPath) && !is_dir($this->folderDstPath)) {
-            echo "ERROR: Can't create folder " . $this->folderDstPath . '.' . \PHP_EOL . \PHP_EOL;
+        if (!is_file($this->dstFolder) && !@mkdir($this->dstFolder) && !is_dir($this->dstFolder)) {
+            echo "ERROR: Can't create folder " . $this->dstFolder . '.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_CANT_CREATE_FOLDER;
         }
         return self::RETURN_SUCCESS;
@@ -206,14 +206,14 @@ class OrderJsonFiles extends ConsoleAbstract
     private function orderJson(array $files): int
     {
         foreach ($files as $fileName) {
-            $arrayContent = $this->readJSON($this->folderSrcPath . $fileName);
+            $arrayContent = $this->readJSON($this->srcFolder . $fileName);
             \ksort($arrayContent);
-            if (!$this->saveJSON($arrayContent, $this->folderDstPath . $fileName)) {
+            if (!$this->saveJSON($arrayContent, $this->dstFolder . $fileName)) {
                 echo "ERROR: Can't save file " . $fileName . \PHP_EOL;
             }
         }
 
-        echo 'Finished! Look at "' . $this->folderDstPath . '"' . \PHP_EOL;
+        echo 'Finished! Look at "' . $this->dstFolder . '"' . \PHP_EOL;
         return self::RETURN_SUCCESS;
     }
 

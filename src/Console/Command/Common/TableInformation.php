@@ -19,6 +19,96 @@ trait TableInformation
 {
 
     /**
+     * Folder destiny path.
+     *
+     * @var string
+     */
+    private $dstFolder;
+
+    /**
+     * Name of the model.
+     *
+     * @var string
+     */
+    private $modelName;
+
+    /**
+     * Name of the table.
+     *
+     * @var string
+     */
+    private $tableName;
+
+    /**
+     * Set destiny folder.
+     *
+     * @param string $dstFolder
+     *
+     * @return $this
+     */
+    public function setDstFolder(string $dstFolder): self
+    {
+        $this->dstFolder = $dstFolder;
+        return $this;
+    }
+
+    /**
+     * Set the model name to use.
+     *
+     * @param string $modelName
+     *
+     * @return $this
+     */
+    public function setModelName(string $modelName): self
+    {
+        $this->modelName = $modelName;
+        return $this;
+    }
+
+    /**
+     * Set table name to use.
+     *
+     * @param string $tableName
+     *
+     * @return $this
+     */
+    public function setTableName(string $tableName): self
+    {
+        $this->tableName = $tableName;
+        return $this;
+    }
+
+    /**
+     * Return the folder destiny path.
+     *
+     * @return string
+     */
+    public function getDstFolder(): string
+    {
+        return $this->dstFolder;
+    }
+
+    /**
+     * Return the model name.
+     *
+     * @return string
+     */
+    public function getModelName(): string
+    {
+        return $this->modelName;
+    }
+
+    /**
+     * Return the table name.
+     *
+     * @return string
+     */
+    public function getTableName(): string
+    {
+        return $this->tableName;
+    }
+
+    /**
      * Returns an array with tables.
      *
      * @param DataBase $dataBase
@@ -54,6 +144,73 @@ trait TableInformation
     public function getConstraintFromTable(DataBase $dataBase, $tableName): array
     {
         return $dataBase->getConstraints($tableName, true);
+    }
+
+    /**
+     * Return constraints grouped by name.
+     *
+     * @return array
+     */
+    public function getConstraintsGroupByName(): array
+    {
+        $constraint = [];
+        foreach ($this->getConstraintFromTable($this->getDataBase(), $this->getTableName()) as $cons) {
+            if (isset($constraint[$cons['name']])) {
+                $constraint[$cons['name']]['column_name'] .= ', ' . $cons['column_name'];
+            } else {
+                $constraint[$cons['name']] = $cons;
+            }
+        }
+        \ksort($constraint);
+        return $constraint;
+    }
+
+    /**
+     * Return items from table by type.
+     *
+     * @param string $type
+     *
+     * @return array
+     */
+    public function getItemsFromTableBy(string $type = ''): array
+    {
+        $items = [];
+        foreach ($this->getItemsFromTable($this->getDataBase(), $this->getTableName()) as $item) {
+            $colType = $this->parseType($item['type'], 'view');
+            if (0 === \strpos($colType, $type)) {
+                $items[] = $item;
+            }
+        }
+        return $items;
+    }
+
+    /**
+     * Return items from table ordered, primary key first.
+     *
+     * @return array
+     */
+    public function getItemsFromTableOrdered(): array
+    {
+        $items = [];
+        $primaryKey = null;
+        foreach ($this->getItemsFromTable($this->getDataBase(), $this->getTableName()) as $item) {
+            $items[] = $item;
+            if (0 === \strpos($item['default'], 'nextval')) {
+                $primaryKey = array_pop($items);
+            }
+        }
+        array_unshift($items, $primaryKey);
+        return $items;
+    }
+
+    /**
+     * Return a list of tables.
+     *
+     * @return string
+     */
+    public function getTablesMsg(): string
+    {
+        return \implode(', ', $this->getTables($this->dataBase));
     }
 
     /**

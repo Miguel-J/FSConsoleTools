@@ -49,14 +49,14 @@ class OrderXmlTables extends ConsoleAbstract
      *
      * @var string
      */
-    private $folderSrcPath;
+    private $srcFolder;
 
     /**
      * Folder destiny path.
      *
      * @var string
      */
-    private $folderDstPath;
+    private $dstFolder;
 
     /**
      * Tagname used for order.
@@ -68,26 +68,26 @@ class OrderXmlTables extends ConsoleAbstract
     /**
      * Set default source folder.
      *
-     * @param string $folderSrcPath
+     * @param string $srcFolder
      *
      * @return $this
      */
-    public function setFolderSrcPath(string $folderSrcPath): self
+    public function setSrcFolder(string $srcFolder): self
     {
-        $this->folderSrcPath = $folderSrcPath;
+        $this->srcFolder = $srcFolder;
         return $this;
     }
 
     /**
      * Set default destiny folder.
      *
-     * @param string $folderDstPath
+     * @param string $dstFolder
      *
      * @return $this
      */
-    public function setFolderDstPath(string $folderDstPath): self
+    public function setDstFolder(string $dstFolder): self
     {
-        $this->folderDstPath = $folderDstPath;
+        $this->dstFolder = $dstFolder;
         return $this;
     }
 
@@ -119,14 +119,14 @@ class OrderXmlTables extends ConsoleAbstract
             return $status;
         }
 
-        $this->setFolderSrcPath(\FS_FOLDER . ($params[0] ?? 'Core/Table/'));
-        $this->setFolderDstPath(\FS_FOLDER . ($params[1] ?? 'Core/Table/'));
+        $this->setSrcFolder(\FS_FOLDER . ($params[0] ?? 'Core/Table/'));
+        $this->setDstFolder(\FS_FOLDER . ($params[1] ?? 'Core/Table/'));
         $this->setTagName($params[2] ?? 'name');
 
         echo 'Ordering XML table content' . \PHP_EOL . \PHP_EOL;
         echo '   Options setted:' . \PHP_EOL;
-        echo '      Source path: ' . $this->folderSrcPath . \PHP_EOL;
-        echo '      Destiny path: ' . $this->folderDstPath . \PHP_EOL;
+        echo '      Source path: ' . $this->srcFolder . \PHP_EOL;
+        echo '      Destiny path: ' . $this->dstFolder . \PHP_EOL;
         echo '      Tag name: ' . $this->tagName . \PHP_EOL;
 
         if (!$this->areYouSure()) {
@@ -139,7 +139,7 @@ class OrderXmlTables extends ConsoleAbstract
             return $status;
         }
 
-        $files = FileManager::scanFolder($this->folderSrcPath);
+        $files = FileManager::scanFolder($this->srcFolder);
 
         if (\count($files) === 0) {
             echo 'ERROR: No files on folder' . \PHP_EOL . \PHP_EOL;
@@ -205,13 +205,13 @@ class OrderXmlTables extends ConsoleAbstract
     {
         try {
             foreach ($files as $fileName) {
-                $xml = simplexml_load_string(file_get_contents($this->folderSrcPath . $fileName));
+                $xml = simplexml_load_string(file_get_contents($this->srcFolder . $fileName));
                 // Get all children of table into an array
                 $table = (array) $xml->children();
                 $this->checkStructure($fileName, $table);
                 $dom = new DOMDocument();
                 $dom->loadXML($this->generateXML($fileName, $table));
-                $filePath = $this->folderDstPath . '/' . $fileName;
+                $filePath = $this->dstFolder . '/' . $fileName;
                 if ($dom->save($filePath) === false) {
                     echo "ERROR: Can't save file " . $filePath . \PHP_EOL;
                     return self::RETURN_FAIL_SAVING_FILE;
@@ -221,7 +221,7 @@ class OrderXmlTables extends ConsoleAbstract
             echo $e->getMessage(), \PHP_EOL;
             return self::RETURN_INCORRECT_FILE;
         }
-        echo 'Finished! Look at "' . $this->folderDstPath . '"' . \PHP_EOL;
+        echo 'Finished! Look at "' . $this->dstFolder . '"' . \PHP_EOL;
         return self::RETURN_SUCCESS;
     }
 
@@ -237,7 +237,7 @@ class OrderXmlTables extends ConsoleAbstract
     {
         if (!isset($table['column'])) {
             throw new \RuntimeException(
-                'File is incorrect ' . $this->folderSrcPath . $fileName . \PHP_EOL
+                'File is incorrect ' . $this->srcFolder . $fileName . \PHP_EOL
                 . 'File does not contain any column.' . \PHP_EOL
                 . 'Execution stopped'
             );
@@ -247,14 +247,14 @@ class OrderXmlTables extends ConsoleAbstract
             $item = $item ?? (isset($key) ? 'constraint' : null);
             if ($item === null) {
                 throw new \RuntimeException(
-                    'File is incorrect ' . $this->folderSrcPath . $fileName . \PHP_EOL
+                    'File is incorrect ' . $this->srcFolder . $fileName . \PHP_EOL
                     . 'Unexpected data ' . print_r($key, true) . ' => ' . print_r($row, true) . '.'
                     . 'Execution stopped'
                 );
             }
             if (isset($row[$item]) && !isset($row[$item]['name'], $row[$item]['type'])) {
                 throw new \RuntimeException(
-                    'File is incorrect ' . $this->folderSrcPath . $fileName . \PHP_EOL
+                    'File is incorrect ' . $this->srcFolder . $fileName . \PHP_EOL
                     . \ucfirst($item) . ' ' . print_r($row[$item], true) . ' does not contain name or type.'
                     . 'Execution stopped'
                 );
@@ -319,11 +319,11 @@ class OrderXmlTables extends ConsoleAbstract
      */
     private function check(): int
     {
-        if ($this->folderSrcPath === null) {
+        if ($this->srcFolder === null) {
             echo 'ERROR: Source folder not setted.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_SRC_FOLDER_NOT_SET;
         }
-        if ($this->folderDstPath === null) {
+        if ($this->dstFolder === null) {
             echo 'ERROR: Destiny folder not setted.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_DST_FOLDER_NOT_SET;
         }
@@ -331,12 +331,12 @@ class OrderXmlTables extends ConsoleAbstract
             echo 'ERROR: Tag name not setted.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_TAG_NAME_NOT_SET;
         }
-        if (!is_dir($this->folderSrcPath)) {
-            echo 'ERROR: Source folder ' . $this->folderSrcPath . ' not exists.' . \PHP_EOL . \PHP_EOL;
+        if (!is_dir($this->srcFolder)) {
+            echo 'ERROR: Source folder ' . $this->srcFolder . ' not exists.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_SRC_FOLDER_NOT_EXISTS;
         }
-        if (!is_file($this->folderDstPath) && !@mkdir($this->folderDstPath) && !is_dir($this->folderDstPath)) {
-            echo "ERROR: Can't create folder " . $this->folderDstPath . '.' . \PHP_EOL . \PHP_EOL;
+        if (!is_file($this->dstFolder) && !@mkdir($this->dstFolder) && !is_dir($this->dstFolder)) {
+            echo "ERROR: Can't create folder " . $this->dstFolder . '.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_CANT_CREATE_FOLDER;
         }
         return self::RETURN_SUCCESS;

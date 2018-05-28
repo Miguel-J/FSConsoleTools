@@ -154,7 +154,7 @@ trait TableInformation
     public function getConstraintsGroupByName(): array
     {
         $constraint = [];
-        foreach ($this->getConstraintFromTable($this->getDataBase(), $this->getTableName()) as $cons) {
+        foreach ($this->getConstraintFromTable($this->dataBase, $this->getTableName()) as $cons) {
             if (isset($constraint[$cons['name']])) {
                 $constraint[$cons['name']]['column_name'] .= ', ' . $cons['column_name'];
             } else {
@@ -175,7 +175,7 @@ trait TableInformation
     public function getItemsFromTableBy(string $type = ''): array
     {
         $items = [];
-        foreach ($this->getItemsFromTable($this->getDataBase(), $this->getTableName()) as $item) {
+        foreach ($this->getItemsFromTable($this->dataBase, $this->getTableName()) as $item) {
             $colType = $this->parseType($item['type'], 'view');
             if (0 === \strpos($colType, $type)) {
                 $items[] = $item;
@@ -193,7 +193,7 @@ trait TableInformation
     {
         $items = [];
         $primaryKey = null;
-        foreach ($this->getItemsFromTable($this->getDataBase(), $this->getTableName()) as $item) {
+        foreach ($this->getItemsFromTable($this->dataBase, $this->getTableName()) as $item) {
             $items[] = $item;
             if (0 === \strpos($item['default'], 'nextval')) {
                 $primaryKey = array_pop($items);

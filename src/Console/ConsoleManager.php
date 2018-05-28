@@ -36,6 +36,7 @@ class ConsoleManager extends ConsoleAbstract
      */
     public function __construct(int $argc, array $argv)
     {
+        parent::__construct();
         $this->argv = $argv;
 
         // Check that at least there are 2 params (console & command)

@@ -194,11 +194,11 @@ class GenerateXmlTable extends ConsoleAbstract
      */
     private function check(): int
     {
-        if ($this->getTableName() === null) {
+        if ($this->getTableName() === '') {
             echo 'ERROR: Table name not setted.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_TABLE_NAME_NOT_SET;
         }
-        if ($this->getDstFolder() === null) {
+        if ($this->getDstFolder() === '') {
             echo 'ERROR: Destiny folder not setted.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_DST_FOLDER_NOT_SET;
         }

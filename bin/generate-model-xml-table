@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ $# -ne 2 ]; then
+    echo "Generates a Table XML file"
+    echo "    Usage: $0 [TABLE NAME] [DESTINY PATH]"
+    exit 1
+fi
+
+php vendor/bin/console GenerateXmlTable --gen $1 $2

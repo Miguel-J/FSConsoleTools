@@ -94,12 +94,14 @@ class OrderJsonFiles extends ConsoleAbstract
             return $status;
         }
 
-        $this->setFolderSrcPath($params[0] ?? \FS_FOLDER . 'Core/Translation/');
-        $this->setFolderDstPath($params[1] ?? \FS_FOLDER . 'Core/Translation/');
+        $this->setFolderSrcPath(\FS_FOLDER . ($params[0] ?? 'Core/Translation/'));
+        $this->setFolderDstPath(\FS_FOLDER . ($params[1] ?? 'Core/Translation/'));
 
-        echo 'Options setted:' . \PHP_EOL;
-        echo '   Source path: ' . $this->folderSrcPath . \PHP_EOL;
-        echo '   Destiny path: ' . $this->folderDstPath . \PHP_EOL;
+        echo 'Ordering JSON content' . \PHP_EOL . \PHP_EOL;
+        echo '   Options setted:' . \PHP_EOL;
+        echo '      Source path: ' . $this->folderSrcPath . \PHP_EOL;
+        echo '      Destiny path: ' . $this->folderDstPath . \PHP_EOL;
+
         if (!$this->areYouSure()) {
             echo '   Options [SRC] [DST] [TAG]' . \PHP_EOL;
             return self::RETURN_SUCCESS;
@@ -113,7 +115,7 @@ class OrderJsonFiles extends ConsoleAbstract
         $files = FileManager::scanFolder($this->folderSrcPath);
 
         if (\count($files) === 0) {
-            echo 'ERROR: No files on folder' . \PHP_EOL;
+            echo 'ERROR: No files on folder' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_NO_FILES;
         }
 
@@ -176,19 +178,19 @@ class OrderJsonFiles extends ConsoleAbstract
     private function check(): int
     {
         if ($this->folderSrcPath === null) {
-            echo 'ERROR: Source folder not setted.' . \PHP_EOL;
+            echo 'ERROR: Source folder not setted.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_SRC_FOLDER_NOT_SET;
         }
         if ($this->folderDstPath === null) {
-            echo 'ERROR: Destiny folder not setted.' . \PHP_EOL;
+            echo 'ERROR: Destiny folder not setted.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_DST_FOLDER_NOT_SET;
         }
         if (!is_dir($this->folderSrcPath)) {
-            echo 'ERROR: Source folder ' . $this->folderSrcPath . ' not exists.' . \PHP_EOL;
+            echo 'ERROR: Source folder ' . $this->folderSrcPath . ' not exists.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_SRC_FOLDER_NOT_EXISTS;
         }
         if (!is_file($this->folderDstPath) && !@mkdir($this->folderDstPath) && !is_dir($this->folderDstPath)) {
-            echo "ERROR: Can't create folder " . $this->folderDstPath;
+            echo "ERROR: Can't create folder " . $this->folderDstPath . '.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_CANT_CREATE_FOLDER;
         }
         return self::RETURN_SUCCESS;

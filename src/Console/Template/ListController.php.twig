@@ -1,0 +1,97 @@
+<?php
+/**
+ * This file is part of FacturaScripts
+ * Copyright (C) {{ "now"|date("Y") }} Carlos Garcia Gomez <carlos@facturascripts.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+namespace FacturaScripts\Core\Model;
+
+use FacturaScripts\Core\Lib\ExtendedController;
+
+/**
+ * Controller to list the items in the {{ fsc.getModelName() }} model.
+ *
+ * @author YOUR_NAME <YOUR@EMAIL>
+ * @source This class was generated using FSConsoleTools.
+ */
+class List{{ fsc.getModelName() }} extends ExtendedController\ListController
+{
+
+    /**
+     * Returns basic page attributes
+     *
+     * @return array
+     */
+    public function getPageData()
+    {
+        $pageData = parent::getPageData();
+        $pageData['title'] = '{{ fsc.getModelName()|lower }}';
+        $pageData['menu'] = 'new-menu';
+        $pageData['icon'] = 'fa-font-awesome';
+        //$pageData['showonmenu'] = false;
+
+        return $pageData;
+    }
+
+    /**
+     * Load views
+     */
+    protected function createViews()
+    {
+        $this->addView('List{{ fsc.getModelName() }}', '{{ fsc.getModelName() }}', '{{ fsc.getModelName()|lower }}', 'fa-font-awesome');
+
+        // TODO: This is a sample with all fields, change/remove what you need.
+
+{% set searchFields = "$this->addSearchFields('List" ~ fsc.getModelName() ~ "', [" %}
+{% set sep = "" %}
+{% set fields = "" %}
+{% for item in fsc.getItemsFromTableBy('text') %}
+{% set fields = fields ~ sep ~ "'" ~ item['name'] ~ "'" %}
+{% set sep = ", " %}
+{% endfor %}
+{% set searchFields = searchFields ~ fields ~ "]);" %}
+        {{ searchFields|raw }}
+
+{% for item in fsc.getItemsFromTableBy('checkbox') %}
+        $this->addFilterCheckbox('List{{ fsc.getModelName() }}', '{{ item['name'] }}', 'trans-{{ item['name'] }}', '{{ item['name'] }}');
+{% endfor %}
+
+{% for item in fsc.getItemsFromTableBy('date') %}
+        $this->addFilterDatePicker('List{{ fsc.getModelName() }}', '{{ item['name'] }}', 'date', '{{ item['name'] }}');
+{% endfor %}
+
+{% for item in fsc.getItemsFromTableBy('number') %}
+        $this->addFilterNumber('List{{ fsc.getModelName() }}', '{{ item['name'] }}', '{{ item['name'] }}', '{{ item['name'] }}');
+{% endfor %}
+
+{% for constraint in fsc.getConstraintFromTable(fsc.getDataBase(), fsc.getTableName()) %}
+{% if constraint['type'] != 'PRIMARY KEY' and constraint['on_delete'] != '' and constraint['on_update'] != '' %}
+        //$this->addFilterAutocomplete('List{{ fsc.getModelName() }}', '{{ constraint['column_name'] }}', 'trans-{{ constraint['column_name'] }}', '{{ constraint['foreign_column_name'] }}', '{{ constraint['foreign_table_name'] }}', '{{ constraint['foreign_column_name'] }}', (new {{ constraint['foreign_table_name']|capitalize }}())->primaryDescriptionColumn());
+{% endif %}
+{% endfor %}
+
+{% for constraint in fsc.getConstraintFromTable(fsc.getDataBase(), fsc.getTableName()) %}
+{% if constraint['type'] != 'PRIMARY KEY' and constraint['on_delete'] != '' and constraint['on_update'] != '' %}
+        //${{ constraint['foreign_table_name'] }}Values = $this->codeModel->all('{{ constraint['foreign_table_name'] }}', '{{ constraint['column_name'] }}', (new {{ constraint['foreign_table_name']|capitalize }}())->primaryDescriptionColumn());
+        //$this->addFilterSelect('List{{ fsc.getModelName() }}', '{{ constraint['foreign_column_name'] }}', '{{ constraint['foreign_table_name'] }}', '{{ constraint['foreign_column_name'] }}', ${{ constraint['foreign_table_name'] }}Values);
+
+{% endif %}
+{% endfor %}
+
+{% for item in fsc.getItemsFromTableBy('text') %}
+        $this->addOrderBy('List{{ fsc.getModelName() }}', '{{ item['name'] }}', 'trans-{{ item['name'] }}');
+{% endfor %}
+    }
+}

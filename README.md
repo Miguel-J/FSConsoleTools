@@ -5,6 +5,7 @@
 
 *Some useful console tools to simplify dev work with [FacturaScripts](https://github.com/NeoRazorX/facturascripts).*
 
+
 ## Installation
 
 Inside your FacturaScripts run this:
@@ -13,19 +14,35 @@ composer require shawe/fs-console-tools
 ```
 
 Now you can use some useful commands as:
-- Reorder content of XML for tables with:
-   - ```./vendor/bin/order-xml-tables```
-- Reorder content of JSON files:
-   - ```./vendor/bin/order-json-files```
-- *Highly recommended before doing a Pull Request*: Run **order-xml-tables**, **order-json-files**, **phpcbf**, **phpcs** and **phpunit** at once:
-  - ```./vendor/bin/run-before-pull-request```
-- Add custom commands you need
+- **Reorder files**
+   - Reorder content of XML for tables with:
+      - ```./vendor/bin/order-xml-tables```
+   - Reorder content of JSON files:
+      - ```./vendor/bin/order-json-files```
 
-## Available options
+- **Generate files**
+   - Generate PHP model class file from database table:
+      - ```./vendor/bin/generate-model```
+   - Generate XMLView Edit model from database table:
+      - ```./vendor/bin/generate-model-xml-edit```
+   - Generate XMLView List model file from database table:
+      - ```./vendor/bin/generate-model-xml-list```
+   - Generate PHP Edit controller for model from database table:
+      - ```./vendor/bin/generate-model-controller-edit```
+   - Generate PHP List controller for model file from database table:
+      - ```./vendor/bin/generate-model-controller-list```
+   - Generate XML table file from database table:
+      - ```./vendor/bin/generate-model-xml-table```
+   - Generate all previous files from database table:
+      - ```./vendor/bin/generate-model-all```
 
-- **bin/order-xml-tables:** *This is a little utility to reorder XML table items.*
-- **bin/order-json-files:** *This is a little utility to reorder JSON items.*
-- **bin/run-before-pull-request:** *This is a little utility to run all common needed checks before do a Pull Request.*
+- **Test**
+   - *Highly recommended before doing a Pull Request*: Run **order-xml-tables**, **order-json-files**, **phpcbf**, **phpcs** and **phpunit** at once:
+     - ```./vendor/bin/run-before-pull-request```
+
+- **Other**
+   - Add custom commands you need
+
 
 ## Pull Request are welcome
 

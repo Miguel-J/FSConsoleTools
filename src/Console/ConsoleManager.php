@@ -134,6 +134,7 @@ class ConsoleManager extends ConsoleAbstract
      */
     public function execute(): int
     {
+        $this->init();
         $status = -1;
         $params = $this->argv;
         \array_shift($params); // Extract console
@@ -162,6 +163,9 @@ class ConsoleManager extends ConsoleAbstract
                     if (\in_array($method, \get_class_methods($className), false) ||
                         \in_array($method, \get_class_methods(\get_parent_class($className)), false)
                     ) {
+                        if (\DB_CONNECTION) {
+                            $params[] = $this->dataBase;
+                        }
                         $status = (int) \call_user_func_array([new $className(), 'run'], $params);
                         break;
                     }
@@ -191,6 +195,7 @@ class ConsoleManager extends ConsoleAbstract
                 $this->optionNotAvailable($cmd, $alias);
                 $status = $this->getAvailableOptions($cmd);
         }
+        $this->terminate();
         return $status;
     }
 
@@ -223,6 +228,9 @@ class ConsoleManager extends ConsoleAbstract
         $msg = 'Available commands:' . \PHP_EOL;
         foreach ($this->getAvailableCommands() as $cmd) {
             $className = __NAMESPACE__ . '\Command\\' . $cmd;
+            if (0 === \strpos($className, __NAMESPACE__ . '\Command\Common\\')) {
+                continue;
+            }
             $msg .= '   - ' . $cmd . ' : ' . \call_user_func([new $className(), 'getDescription']) . \PHP_EOL;
         }
         return $msg . \PHP_EOL;
@@ -239,6 +247,9 @@ class ConsoleManager extends ConsoleAbstract
         $allClasses = $this->getAllFcqns(__DIR__ . '/Command');
         foreach ($allClasses as $class) {
             if (0 === \strpos($class, __NAMESPACE__ . '\Command\\')) {
+                if (0 === \strpos($class, __NAMESPACE__ . '\Command\Common\\')) {
+                    continue;
+                }
                 $available[] = \str_replace(__NAMESPACE__ . '\Command\\', '', $class);
             }
         }

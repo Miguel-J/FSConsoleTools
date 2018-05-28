@@ -63,8 +63,8 @@ if (!DB_CONNECTION) {
     echo '# A config.php file is needed to run all fixes.' . \PHP_EOL;
 }
 
-if (!defined('FS_DEBUG')) {
-    define('FS_DEBUG', false);
+if (!\defined('FS_DEBUG')) {
+    \define('FS_DEBUG', false);
 }
 
 
@@ -106,5 +106,5 @@ echo $output;
 
 echo PHP_EOL . PHP_EOL;
 echo 'Runing PHPUnit test...' . PHP_EOL;
-$output = shell_exec('vendor/bin/phpunit --configuration phpunit.xml');
+$output = shell_exec('vendor/bin/phpunit --configuration phpunit.xml --coverage-text');
 echo $output;

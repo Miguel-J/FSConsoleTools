@@ -17,12 +17,20 @@
     "prefer-stable": true,
     "require": {
         "php": ">=7.0.8",
-        "symfony/finder": "^4.0"
+        "symfony/finder": "^4.0",
+        "twig/twig": "^2.4"
     },
     "bin": [
         "bin/console",
-        "bin/order-xml-tables",
+        "bin/generate-model",
+        "bin/generate-model-all",
+        "bin/generate-model-controller-edit",
+        "bin/generate-model-controller-list",
+        "bin/generate-model-xml-edit",
+        "bin/generate-model-xml-list",
+        "bin/generate-model-xml-table",
         "bin/order-json-files",
+        "bin/order-xml-tables",
         "bin/run-before-pull-request"
     ],
     "require-dev": {

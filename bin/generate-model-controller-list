@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ $# -ne 3 ]; then
+    echo "Generates a Controller List file"
+    echo "    Usage: $0 [TABLE NAME] [MODEL NAME] [DESTINY PATH]"
+    exit 1
+fi
+
+php vendor/bin/console GeneratePhpListController --gen $1 $2 $3

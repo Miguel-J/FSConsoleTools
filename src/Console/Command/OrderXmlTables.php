@@ -119,14 +119,16 @@ class OrderXmlTables extends ConsoleAbstract
             return $status;
         }
 
-        $this->setFolderSrcPath($params[0] ?? \FS_FOLDER . 'Core/Table/');
-        $this->setFolderDstPath($params[1] ?? \FS_FOLDER . 'Core/Table/');
+        $this->setFolderSrcPath(\FS_FOLDER . ($params[0] ?? 'Core/Table/'));
+        $this->setFolderDstPath(\FS_FOLDER . ($params[1] ?? 'Core/Table/'));
         $this->setTagName($params[2] ?? 'name');
 
-        echo 'Options setted:' . \PHP_EOL;
-        echo '   Source path: ' . $this->folderSrcPath . \PHP_EOL;
-        echo '   Destiny path: ' . $this->folderDstPath . \PHP_EOL;
-        echo '   Tag name: ' . $this->tagName . \PHP_EOL;
+        echo 'Ordering XML table content' . \PHP_EOL . \PHP_EOL;
+        echo '   Options setted:' . \PHP_EOL;
+        echo '      Source path: ' . $this->folderSrcPath . \PHP_EOL;
+        echo '      Destiny path: ' . $this->folderDstPath . \PHP_EOL;
+        echo '      Tag name: ' . $this->tagName . \PHP_EOL;
+
         if (!$this->areYouSure()) {
             echo '   Options [SRC] [DST] [TAG]' . \PHP_EOL;
             return self::RETURN_SUCCESS;
@@ -140,7 +142,7 @@ class OrderXmlTables extends ConsoleAbstract
         $files = FileManager::scanFolder($this->folderSrcPath);
 
         if (\count($files) === 0) {
-            echo 'ERROR: No files on folder' . \PHP_EOL;
+            echo 'ERROR: No files on folder' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_NO_FILES;
         }
 
@@ -188,10 +190,7 @@ class OrderXmlTables extends ConsoleAbstract
      */
     public function getUserMethods(): array
     {
-        return [
-            '-h' => 'getHelpMsg',
-            '--help' => 'getHelpMsg'
-        ];
+        return parent::getUserMethods();
     }
 
     /**
@@ -321,23 +320,23 @@ class OrderXmlTables extends ConsoleAbstract
     private function check(): int
     {
         if ($this->folderSrcPath === null) {
-            echo 'ERROR: Source folder not setted.' . \PHP_EOL;
+            echo 'ERROR: Source folder not setted.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_SRC_FOLDER_NOT_SET;
         }
         if ($this->folderDstPath === null) {
-            echo 'ERROR: Destiny folder not setted.' . \PHP_EOL;
+            echo 'ERROR: Destiny folder not setted.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_DST_FOLDER_NOT_SET;
         }
         if ($this->tagName === null) {
-            echo 'ERROR: Tag name not setted.' . \PHP_EOL;
+            echo 'ERROR: Tag name not setted.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_TAG_NAME_NOT_SET;
         }
         if (!is_dir($this->folderSrcPath)) {
-            echo 'ERROR: Source folder ' . $this->folderSrcPath . ' not exists.' . \PHP_EOL;
+            echo 'ERROR: Source folder ' . $this->folderSrcPath . ' not exists.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_SRC_FOLDER_NOT_EXISTS;
         }
         if (!is_file($this->folderDstPath) && !@mkdir($this->folderDstPath) && !is_dir($this->folderDstPath)) {
-            echo "ERROR: Can't create folder " . $this->folderDstPath;
+            echo "ERROR: Can't create folder " . $this->folderDstPath . '.' . \PHP_EOL . \PHP_EOL;
             return self::RETURN_CANT_CREATE_FOLDER;
         }
         return self::RETURN_SUCCESS;

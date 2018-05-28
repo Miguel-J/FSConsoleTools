@@ -19,6 +19,8 @@
 
 namespace FacturaScriptsUtils\Console;
 
+use FacturaScripts\Core\Base\DataBase;
+
 const DS = DIRECTORY_SEPARATOR;
 
 if (!\defined('FS_FOLDER')) {
@@ -44,6 +46,13 @@ abstract class ConsoleAbstract
     protected $argv;
 
     /**
+     * DataBase object.
+     *
+     * @var DataBase
+     */
+    protected $dataBase;
+
+    /**
      * Start point to run the command.
      *
      * @param array $params
@@ -67,6 +76,29 @@ abstract class ConsoleAbstract
     abstract public function getHelpMsg(): string;
 
     /**
+     * Initialize.
+     */
+    public function init()
+    {
+        if (\DB_CONNECTION) {
+            if (!isset($this->dataBase)) {
+                $this->dataBase = new DataBase();
+                $this->dataBase->connect();
+            }
+        } else {
+            echo 'A database connection is needed. Do you set your config.php file?';
+        }
+    }
+
+    /**
+     * Terminate.
+     */
+    public function terminate()
+    {
+        $this->dataBase->close();
+    }
+
+    /**
      * Returns an associative array of available methods for the user.
      * Add more options if you want to add support for custom methods.
      *      [
@@ -87,9 +119,11 @@ abstract class ConsoleAbstract
     /**
      * Ask user to continue and return a boolean.
      *
+     * @param bool $autoReply
+     *
      * @return bool
      */
-    public function areYouSure()
+    public function areYouSure($autoReply = false)
     {
         echo \PHP_EOL . 'Are you sure? [y/n] ';
         $stdin = fgets(STDIN);
@@ -100,7 +134,7 @@ abstract class ConsoleAbstract
             case 'Yes':
                 return true;
             default:
-                return false;
+                return $autoReply;
         }
     }
 }

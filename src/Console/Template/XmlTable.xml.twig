@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : {{ fsc.getTableName() }}.xml
+    Author     : YOUR_NAME <YOUR@EMAIL>
+    Source     : This class was generated using FSConsoleTools.
+    Description: Structure for the {{ fsc.getTableName() }} table.
+-->
+<table>
+{% for column in fsc.getItemsFromTable(fsc.getDataBase(), fsc.getTableName()) %}
+    <column>
+        <name>{{ column['name'] }}</name>
+        <type>{{ fsc.parseType(column['type'], 'table') }}</type>
+        <null>{{ column['is_nullable'] }}</null>
+{% if column['default'] != null %}
+        <default>{{ column['default'] }}</default>
+{% endif %}
+    </column>
+{% endfor %}
+{% for constraint in fsc.getConstraintsGroupByName() %}
+    <constraint>
+        <name>{{ constraint['name'] }}</name>
+{% if constraint['type'] != 'FOREIGN KEY' %}
+        <type>{{ constraint['type'] }} ({{ constraint['column_name'] }})</type>
+{% else %}
+        <type>{{ constraint['type'] }} ({{ constraint['column_name'] }}) REFERENCES {{ constraint['foreign_table_name'] }} ({{ constraint['foreign_column_name'] }}) ON DELETE SET {{ constraint['on_delete'] }} ON UPDATE {{ constraint['on_update'] }}</type>
+{% endif %}
+    </constraint>
+{% endfor %}
+</table>

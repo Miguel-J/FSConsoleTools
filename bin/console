@@ -34,7 +34,7 @@ const TRA_CONFIG = FS_FOLDER . 'Test' . DS . 'config-travis.php';
 require_once FS_FOLDER . 'vendor' . DS . 'autoload.php';
 
 if (file_exists(CONFIG)) {
-    define('DB_CONNECTION', true);
+    \define('DB_CONNECTION', true);
     /** @noinspection PhpIncludeInspection */
     require_once CONFIG;
 } else {
@@ -50,17 +50,17 @@ if (file_exists(CONFIG)) {
         require_once SCR_CONFIG;
     } elseif (file_exists(TRA_CONFIG)) {
         echo '# Found ' . SCR_CONFIG . \PHP_EOL;
-        define('DB_CONNECTION', true);
+        \define('DB_CONNECTION', true);
         /** @noinspection PhpIncludeInspection */
         require_once TRA_CONFIG;
     } else {
-        define('DB_CONNECTION', false);
+        \define('DB_CONNECTION', false);
         echo '# Not founded any FS config file. You can\'t use DB supported commands.' . \PHP_EOL;
     }
 }
 
-if (!defined('FS_DEBUG')) {
-    define('FS_DEBUG', false);
+if (!\defined('FS_DEBUG')) {
+    \define('FS_DEBUG', false);
 }
 
 new FacturaScriptsUtils\Console\ConsoleManager($_SERVER['argc'], $_SERVER['argv']);

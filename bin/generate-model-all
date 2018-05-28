@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [ $# -lt 2 ]; then
+    echo "Generates a all needed files for a model"
+    echo "    Usage: $0 [TABLE NAME] [MODEL NAME]"
+    exit 1
+fi
+
+SRC='Plugins/FSConsoleTools'
+if [ $# -eq 3 ]; then
+    SRC=$3
+fi
+
+php vendor/bin/console GeneratePhpEditController --gen $1 $2 $SRC/Controller/
+php vendor/bin/console GeneratePhpListController --gen $1 $2 $SRC/Controller/
+php vendor/bin/console GeneratePhpModel --gen $1 $2 $SRC/Model/
+php vendor/bin/console GenerateXmlTable --gen $1 $SRC/Table/
+php vendor/bin/console GenerateXmlEditModel --gen $1 $2 $SRC/XMLView/
+php vendor/bin/console GenerateXmlListModel --gen $1 $2 $SRC/XMLView/

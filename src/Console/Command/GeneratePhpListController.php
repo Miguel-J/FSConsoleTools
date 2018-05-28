@@ -318,15 +318,15 @@ class GeneratePhpListController extends ConsoleAbstract
                     return -1;
                 case '-t':
                 case '--tables':
-                    $this->setDataBase($params[1] ?? null);
+                    $this->setDataBase($params[1]);
                     echo $this->getTablesMsg();
                     return -1;
                 case '-g':
                 case '--gen':
                     $this->setTableName($params[1] ?? '');
                     $this->setModelName($params[2] ?? '');
-                    $this->setFolderDstPath(\FS_FOLDER . $params[3] ?? '');
-                    $this->setDataBase($params[4] ?? null);
+                    $this->setFolderDstPath(\FS_FOLDER . ($params[3] ?? 'Core/Controller'));
+                    $this->setDataBase($params[4]);
             }
         }
         return 0;

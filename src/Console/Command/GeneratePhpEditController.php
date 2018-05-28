@@ -374,10 +374,10 @@ class GeneratePhpEditController extends ConsoleAbstract
      * @param string $pathName
      * @param string $content
      *
-     * @return int
+     * @return bool|int
      */
-    private function saveFile(string $pathName, string $content): int
+    private function saveFile(string $pathName, string $content)
     {
-        return (int) file_put_contents($pathName, $content);
+        return file_put_contents($pathName, $content);
     }
 }

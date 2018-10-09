@@ -54,8 +54,11 @@ class GenerateXmlTable extends ConsoleAbstract
      */
     public function run(...$params): int
     {
+        $this->autoReply = isset($params[4]) ? (bool) $params[4] : false;
+        $this->autoHide = isset($params[5]) ? (bool) $params[5] : false;
+
         if (!\DB_CONNECTION) {
-            echo 'A database connection is needed. Do you set your config.php file?';
+            trigger_error('A database connection is needed. Do you set your config.php file?');
         }
 
         $status = $this->checkOptions($params);
@@ -68,13 +71,13 @@ class GenerateXmlTable extends ConsoleAbstract
             return $status;
         }
 
-        echo 'Generating XML table file' . \PHP_EOL . \PHP_EOL;
-        echo '   Options setted:' . \PHP_EOL;
-        echo '      Table name: ' . $this->getTableName() . \PHP_EOL;
-        echo '      Destiny path: ' . $this->getDstFolder() . \PHP_EOL;
+        $this->showMessage('Generating XML table file' . \PHP_EOL . \PHP_EOL);
+        $this->showMessage('   Options setted:' . \PHP_EOL);
+        $this->showMessage('      Table name: ' . $this->getTableName() . \PHP_EOL);
+        $this->showMessage('      Destiny path: ' . $this->getDstFolder() . \PHP_EOL);
 
-        if (!$this->areYouSure()) {
-            echo '   Options [TABLE NAME] [DST]' . \PHP_EOL;
+        if (!$this->areYouSure($this->autoReply)) {
+            $this->showMessage('   Options [TABLE NAME] [DST]' . \PHP_EOL);
             return self::RETURN_SUCCESS;
         }
 
@@ -150,18 +153,18 @@ class GenerateXmlTable extends ConsoleAbstract
             switch ($params[0]) {
                 case '-h':
                 case '--help':
-                    echo $this->getHelpMsg();
+                    $this->showMessage($this->getHelpMsg());
                     return -1;
                 case '-t':
                 case '--tables':
                     $this->setDataBase($params[1]);
-                    echo $this->getTablesMsg();
+                    $this->showMessage($this->getTablesMsg());
                     return -1;
                 case '-g':
                 case '--gen':
-                    $this->setTableName($params[1] ?? '');
-                    $this->setDstFolder(\FS_FOLDER . ($params[2] ?? 'Core/Table'));
-                    $this->setDataBase($params[3]);
+                    $this->setTableName(isset($params[1]) ? $params[1] : '');
+                    $this->setDstFolder(\FS_FOLDER . (isset($params[2]) ? $params[2] : 'Core/Table'));
+                    $this->setDataBase(isset($params[3]) ? $params[3] : null);
             }
         }
         return 0;
@@ -177,11 +180,11 @@ class GenerateXmlTable extends ConsoleAbstract
     private function checkParams(array $params = []): int
     {
         if (!isset($params[0])) {
-            echo 'No table name setted.' . \PHP_EOL;
+            trigger_error('No table name setted.' . \PHP_EOL);
             return -1;
         }
         if (!isset($params[1])) {
-            echo 'No model name setted.' . \PHP_EOL;
+            trigger_error('No model name setted.' . \PHP_EOL);
             return -1;
         }
         return 0;
@@ -195,19 +198,19 @@ class GenerateXmlTable extends ConsoleAbstract
     private function check(): int
     {
         if ($this->getTableName() === '') {
-            echo 'ERROR: Table name not setted.' . \PHP_EOL . \PHP_EOL;
+            trigger_error('ERROR: Table name not setted.' . \PHP_EOL . \PHP_EOL);
             return self::RETURN_TABLE_NAME_NOT_SET;
         }
         if ($this->getDstFolder() === '') {
-            echo 'ERROR: Destiny folder not setted.' . \PHP_EOL . \PHP_EOL;
+            trigger_error('ERROR: Destiny folder not setted.' . \PHP_EOL . \PHP_EOL);
             return self::RETURN_DST_FOLDER_NOT_SET;
         }
         if (!is_file($this->getDstFolder()) && !@mkdir($this->getDstFolder()) && !is_dir($this->getDstFolder())) {
-            echo "ERROR: Can't create folder " . $this->getDstFolder() . '.' . \PHP_EOL . \PHP_EOL;
+            trigger_error("ERROR: Can't create folder " . $this->getDstFolder() . '.' . \PHP_EOL . \PHP_EOL);
             return self::RETURN_CANT_CREATE_FOLDER;
         }
         if (!\in_array($this->getTableName(), $this->dataBase->getTables(), false)) {
-            echo 'ERROR: Table not exists.' . \PHP_EOL . \PHP_EOL;
+            trigger_error('ERROR: Table not exists.' . \PHP_EOL . \PHP_EOL);
             return self::RETURN_TABLE_NOT_EXISTS;
         }
         return self::RETURN_SUCCESS;
@@ -230,10 +233,10 @@ class GenerateXmlTable extends ConsoleAbstract
 
         $status = $this->saveFile($this->getDstFolder() . $this->getTableName() . '.xml', $txt);
         if (\is_bool($status)) {
-            echo "Can't save " . $this->getDstFolder() . $this->getTableName() . '.xml"' . \PHP_EOL;
+            trigger_error("Can't save " . $this->getDstFolder() . $this->getTableName() . '.xml"' . \PHP_EOL);
             return $status;
         }
-        echo 'Finished! Look at "' . $this->getDstFolder() . '"' . \PHP_EOL;
+        $this->showMessage('Finished! Look at "' . $this->getDstFolder() . '"' . \PHP_EOL);
         return self::RETURN_SUCCESS;
     }
 }

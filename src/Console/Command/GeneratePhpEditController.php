@@ -54,8 +54,11 @@ class GeneratePhpEditController extends ConsoleAbstract
      */
     public function run(...$params): int
     {
+        $this->autoReply = isset($params[5]) ? (bool) $params[5] : false;
+        $this->autoHide = isset($params[6]) ? (bool) $params[6] : false;
+
         if (!\DB_CONNECTION) {
-            echo 'A database connection is needed. Do you set your config.php file?';
+            trigger_error('A database connection is needed. Do you set your config.php file?');
         }
 
         $status = $this->checkOptions($params);
@@ -68,14 +71,14 @@ class GeneratePhpEditController extends ConsoleAbstract
             return $status;
         }
 
-        echo 'Generating Edit Controller class file' . \PHP_EOL . \PHP_EOL;
-        echo '   Options setted:' . \PHP_EOL;
-        echo '      Table name: ' . $this->getTableName() . \PHP_EOL;
-        echo '      Model name: ' . $this->getModelName() . \PHP_EOL;
-        echo '      Destiny path: ' . $this->getDstFolder() . \PHP_EOL;
+        $this->showMessage('Generating Edit Controller class file' . \PHP_EOL . \PHP_EOL);
+        $this->showMessage('   Options setted:' . \PHP_EOL);
+        $this->showMessage('      Table name: ' . $this->getTableName() . \PHP_EOL);
+        $this->showMessage('      Model name: ' . $this->getModelName() . \PHP_EOL);
+        $this->showMessage('      Destiny path: ' . $this->getDstFolder() . \PHP_EOL);
 
-        if (!$this->areYouSure()) {
-            echo '   Options [TABLE NAME] [MODEL NAME] [DST]' . \PHP_EOL;
+        if (!$this->areYouSure($this->autoReply)) {
+            $this->showMessage('   Options [TABLE NAME] [MODEL NAME] [DST]' . \PHP_EOL);
             return self::RETURN_SUCCESS;
         }
 
@@ -152,19 +155,19 @@ class GeneratePhpEditController extends ConsoleAbstract
             switch ($params[0]) {
                 case '-h':
                 case '--help':
-                    echo $this->getHelpMsg();
+                    $this->showMessage($this->getHelpMsg());
                     return -1;
                 case '-t':
                 case '--tables':
                     $this->setDataBase($params[1]);
-                    echo $this->getTablesMsg();
+                    $this->showMessage($this->getTablesMsg());
                     return -1;
                 case '-g':
                 case '--gen':
-                    $this->setTableName($params[1] ?? '');
-                    $this->setModelName($params[2] ?? '');
-                    $this->setDstFolder(\FS_FOLDER . ($params[3] ?? 'Core/Controller'));
-                    $this->setDataBase($params[4]);
+                    $this->setTableName(isset($params[1]) ? $params[1] : '');
+                    $this->setModelName(isset($params[2]) ? $params[2] : '');
+                    $this->setDstFolder(\FS_FOLDER . (isset($params[3]) ? $params[3] : 'Core/Controller'));
+                    $this->setDataBase(isset($params[4]) ? $params[4] : null);
             }
         }
         return 0;
@@ -180,11 +183,11 @@ class GeneratePhpEditController extends ConsoleAbstract
     private function checkParams(array $params = []): int
     {
         if (!isset($params[0])) {
-            echo 'No table name setted.' . \PHP_EOL;
+            trigger_error('No table name setted.' . \PHP_EOL);
             return -1;
         }
         if (!isset($params[1])) {
-            echo 'No model name setted.' . \PHP_EOL;
+            trigger_error('No model name setted.' . \PHP_EOL);
             return -1;
         }
         return 0;
@@ -198,23 +201,23 @@ class GeneratePhpEditController extends ConsoleAbstract
     private function check(): int
     {
         if ($this->getTableName() === '') {
-            echo 'ERROR: Table name not setted.' . \PHP_EOL . \PHP_EOL;
+            trigger_error('ERROR: Table name not setted.' . \PHP_EOL . \PHP_EOL);
             return self::RETURN_TABLE_NAME_NOT_SET;
         }
         if ($this->getModelName() === '') {
-            echo 'ERROR: Model name not setted.' . \PHP_EOL . \PHP_EOL;
+            trigger_error('ERROR: Model name not setted.' . \PHP_EOL . \PHP_EOL);
             return self::RETURN_MODEL_NAME_NOT_SET;
         }
         if ($this->getDstFolder() === '') {
-            echo 'ERROR: Destiny folder not setted.' . \PHP_EOL . \PHP_EOL;
+            trigger_error('ERROR: Destiny folder not setted.' . \PHP_EOL . \PHP_EOL);
             return self::RETURN_DST_FOLDER_NOT_SET;
         }
         if (!is_file($this->getDstFolder()) && !@mkdir($this->getDstFolder()) && !is_dir($this->getDstFolder())) {
-            echo "ERROR: Can't create folder " . $this->getDstFolder() . '.' . \PHP_EOL . \PHP_EOL;
+            trigger_error("ERROR: Can't create folder " . $this->getDstFolder() . '.' . \PHP_EOL . \PHP_EOL);
             return self::RETURN_CANT_CREATE_FOLDER;
         }
         if (!\in_array($this->getTableName(), $this->dataBase->getTables(), false)) {
-            echo 'ERROR: Table not exists.' . \PHP_EOL . \PHP_EOL;
+            trigger_error('ERROR: Table not exists.' . \PHP_EOL . \PHP_EOL);
             return self::RETURN_TABLE_NOT_EXISTS;
         }
         return self::RETURN_SUCCESS;
@@ -237,10 +240,10 @@ class GeneratePhpEditController extends ConsoleAbstract
 
         $status = $this->saveFile($this->getDstFolder() . 'Edit' . $this->getModelName() . '.php', $txt);
         if (\is_bool($status)) {
-            echo "Can't save " . $this->getDstFolder() . 'Edit' . $this->getModelName() . '.php"' . \PHP_EOL;
+            trigger_error("Can't save " . $this->getDstFolder() . 'Edit' . $this->getModelName() . '.php"' . \PHP_EOL);
             return $status;
         }
-        echo 'Finished! Look at "' . $this->getDstFolder() . '"' . \PHP_EOL;
+        $this->showMessage('Finished! Look at "' . $this->getDstFolder() . '"' . \PHP_EOL);
         return self::RETURN_SUCCESS;
     }
 }

@@ -89,6 +89,9 @@ class OrderJsonFiles extends ConsoleAbstract
      */
     public function run(...$params): int
     {
+        $this->autoReply = (bool) $params[2] ?? false;
+        $this->autoHide = (bool) $params[3] ?? false;
+
         $status = $this->checkOptions($params);
         if ($status !== 0) {
             return $status;
@@ -97,13 +100,13 @@ class OrderJsonFiles extends ConsoleAbstract
         $this->setSrcFolder(\FS_FOLDER . ($params[0] ?? 'Core/Translation/'));
         $this->setDstFolder(\FS_FOLDER . ($params[1] ?? 'Core/Translation/'));
 
-        echo 'Ordering JSON content' . \PHP_EOL . \PHP_EOL;
-        echo '   Options setted:' . \PHP_EOL;
-        echo '      Source path: ' . $this->srcFolder . \PHP_EOL;
-        echo '      Destiny path: ' . $this->dstFolder . \PHP_EOL;
+        $this->showMessage('Ordering JSON content' . \PHP_EOL . \PHP_EOL);
+        $this->showMessage('   Options setted:' . \PHP_EOL);
+        $this->showMessage('      Source path: ' . $this->srcFolder . \PHP_EOL);
+        $this->showMessage('      Destiny path: ' . $this->dstFolder . \PHP_EOL);
 
-        if (!$this->areYouSure()) {
-            echo '   Options [SRC] [DST] [TAG]' . \PHP_EOL;
+        if (!$this->areYouSure($this->autoReply)) {
+            $this->showMessage('   Options [SRC] [DST] [TAG]' . \PHP_EOL);
             return self::RETURN_SUCCESS;
         }
 
@@ -115,7 +118,7 @@ class OrderJsonFiles extends ConsoleAbstract
         $files = FileManager::scanFolder($this->srcFolder);
 
         if (\count($files) === 0) {
-            echo 'ERROR: No files on folder' . \PHP_EOL . \PHP_EOL;
+            trigger_error('ERROR: No files on folder' . \PHP_EOL . \PHP_EOL);
             return self::RETURN_NO_FILES;
         }
 
@@ -163,7 +166,7 @@ class OrderJsonFiles extends ConsoleAbstract
             switch ($params[0]) {
                 case '-h':
                 case '--help':
-                    echo $this->getHelpMsg();
+                    $this->showMessage($this->getHelpMsg());
                     return -1;
             }
         }
@@ -178,19 +181,19 @@ class OrderJsonFiles extends ConsoleAbstract
     private function check(): int
     {
         if ($this->srcFolder === null) {
-            echo 'ERROR: Source folder not setted.' . \PHP_EOL . \PHP_EOL;
+            trigger_error('ERROR: Source folder not setted.' . \PHP_EOL . \PHP_EOL);
             return self::RETURN_SRC_FOLDER_NOT_SET;
         }
         if ($this->dstFolder === null) {
-            echo 'ERROR: Destiny folder not setted.' . \PHP_EOL . \PHP_EOL;
+            trigger_error('ERROR: Destiny folder not setted.' . \PHP_EOL . \PHP_EOL);
             return self::RETURN_DST_FOLDER_NOT_SET;
         }
         if (!is_dir($this->srcFolder)) {
-            echo 'ERROR: Source folder ' . $this->srcFolder . ' not exists.' . \PHP_EOL . \PHP_EOL;
+            trigger_error('ERROR: Source folder ' . $this->srcFolder . ' not exists.' . \PHP_EOL . \PHP_EOL);
             return self::RETURN_SRC_FOLDER_NOT_EXISTS;
         }
         if (!is_file($this->dstFolder) && !@mkdir($this->dstFolder) && !is_dir($this->dstFolder)) {
-            echo "ERROR: Can't create folder " . $this->dstFolder . '.' . \PHP_EOL . \PHP_EOL;
+            trigger_error("ERROR: Can't create folder " . $this->dstFolder . '.' . \PHP_EOL . \PHP_EOL);
             return self::RETURN_CANT_CREATE_FOLDER;
         }
         return self::RETURN_SUCCESS;
@@ -209,11 +212,11 @@ class OrderJsonFiles extends ConsoleAbstract
             $arrayContent = $this->readJSON($this->srcFolder . $fileName);
             \ksort($arrayContent);
             if (!$this->saveJSON($arrayContent, $this->dstFolder . $fileName)) {
-                echo "ERROR: Can't save file " . $fileName . \PHP_EOL;
+                trigger_error("ERROR: Can't save file " . $fileName . \PHP_EOL);
             }
         }
 
-        echo 'Finished! Look at "' . $this->dstFolder . '"' . \PHP_EOL;
+        $this->showMessage('Finished! Look at "' . $this->dstFolder . '"' . \PHP_EOL);
         return self::RETURN_SUCCESS;
     }
 

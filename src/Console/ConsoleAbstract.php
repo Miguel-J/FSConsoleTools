@@ -67,6 +67,20 @@ abstract class ConsoleAbstract
     private $devMail;
 
     /**
+     * Auto reply it enabled.
+     *
+     * @var bool
+     */
+    public $autoReply = false;
+
+    /**
+     * Auto hide messages if enabled.
+     *
+     * @var bool
+     */
+    public $autoHide = false;
+
+    /**
      * Start point to run the command.
      *
      * @param array $params
@@ -97,6 +111,7 @@ abstract class ConsoleAbstract
         $this->setDevName('YOUR NAME');
         $this->setDevMail('YOUR@EMAIL');
     }
+
     /**
      * Initialize.
      */
@@ -108,7 +123,7 @@ abstract class ConsoleAbstract
                 $this->dataBase->connect();
             }
         } else {
-            echo 'A database connection is needed. Do you set your config.php file?';
+            trigger_error('A database connection is needed. Do you set your config.php file?');
         }
     }
 
@@ -147,13 +162,15 @@ abstract class ConsoleAbstract
      */
     public function areYouSure($autoReply = false)
     {
-        echo \PHP_EOL . 'Are you sure? [y/n] ';
-        $stdin = fgets(STDIN);
-        switch (trim($stdin)) {
+        $this->showMessage(\PHP_EOL . 'Are you sure? [y/n] ');
+        $stdin = $autoReply ? $autoReply : trim(fgets(STDIN));
+        switch ($stdin) {
             case 'y':
             case 'Y':
             case 'yes':
             case 'Yes':
+            case 'true':
+            case true:
                 return true;
             default:
                 return $autoReply;
@@ -163,9 +180,9 @@ abstract class ConsoleAbstract
     /**
      * Set database.
      *
-     * @param DataBase $dataBase
+     * @param DataBase\Mysql|DataBase\Postgresql $dataBase
      */
-    public function setDataBase(DataBase $dataBase)
+    public function setDataBase($dataBase)
     {
         $this->dataBase = $dataBase;
     }
@@ -231,5 +248,19 @@ abstract class ConsoleAbstract
     protected function saveFile(string $pathName, string $content)
     {
         return file_put_contents($pathName, $content);
+    }
+
+    /**
+     * Print a message.
+     *
+     * @param string $msg
+     */
+    protected function showMessage($msg)
+    {
+        if ($this->autoHide) {
+            trigger_error($msg);
+        } else {
+            echo $msg;
+        }
     }
 }

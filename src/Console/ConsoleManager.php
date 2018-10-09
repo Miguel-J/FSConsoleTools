@@ -45,12 +45,12 @@ class ConsoleManager extends ConsoleAbstract
             switch ($this->argv[1]) {
                 case '-l':
                 case '--list':
-                    echo $this->getAvailableCommandsMsg();
+                    $this->showMessage($this->getAvailableCommandsMsg());
                     break;
 
                 case '-h':
                 case '--help':
-                    echo $this->getHelpMsg();
+                    $this->showMessage($this->getHelpMsg());
                     break;
 
                 case 0 === \strpos($this->argv[1], '-'):
@@ -61,7 +61,7 @@ class ConsoleManager extends ConsoleAbstract
                     $this->run();
             }
         } else {
-            echo $this->getHelpMsg();
+            $this->showMessage($this->getHelpMsg());
         }
     }
 
@@ -78,8 +78,8 @@ class ConsoleManager extends ConsoleAbstract
         if (class_exists(__NAMESPACE__ . '\Command\\' . $cmd)) {
             return $this->execute();
         }
-        echo \PHP_EOL . 'ERROR: Command "' . $cmd . '" not found.' . \PHP_EOL . \PHP_EOL;
-        echo $this->getHelpMsg();
+        trigger_error(\PHP_EOL . 'ERROR: Command "' . $cmd . '" not found.' . \PHP_EOL . \PHP_EOL);
+        $this->showMessage($this->getHelpMsg());
         return -1;
     }
 
@@ -178,7 +178,7 @@ class ConsoleManager extends ConsoleAbstract
                             . \PHP_EOL
                             . '#######################################################################################'
                             . \PHP_EOL;
-                        echo $msg;
+                        trigger_error($msg);
                     }
                     break;
                 }
@@ -190,7 +190,7 @@ class ConsoleManager extends ConsoleAbstract
                         . \PHP_EOL . '#    Maybe you are missing to put it in to getUserMethods?' . \PHP_EOL
                         . '#######################################################################################'
                         . \PHP_EOL;
-                    echo $msg;
+                    trigger_error($msg);
                 }
 
                 $this->optionNotAvailable($cmd, $alias);
@@ -209,13 +209,13 @@ class ConsoleManager extends ConsoleAbstract
      */
     public function getAvailableOptions(string $cmd): int
     {
-        echo 'Available options for "' . $cmd . '"' . \PHP_EOL . \PHP_EOL;
+        $this->showMessage('Available options for "' . $cmd . '"' . \PHP_EOL . \PHP_EOL);
         $className = __NAMESPACE__ . '\Command\\' . $cmd;
         $options = \call_user_func([new $className(), 'getUserMethods']);
         foreach ((array) $options as $option => $methods) {
-            echo '   ' . $option . \PHP_EOL;
+            $this->showMessage('   ' . $option . \PHP_EOL);
         }
-        echo \PHP_EOL . 'Use as: php vendor/bin/console ' . $cmd . ' [OPTIONS]' . \PHP_EOL . \PHP_EOL;
+        $this->showMessage(\PHP_EOL . 'Use as: php vendor/bin/console ' . $cmd . ' [OPTIONS]' . \PHP_EOL . \PHP_EOL);
         return -1;
     }
 
@@ -265,7 +265,7 @@ class ConsoleManager extends ConsoleAbstract
      */
     private function optionNotAvailable(string $cmd, string $option)
     {
-        echo 'Option "' . $option . '" not available for "' . $cmd . '".' . \PHP_EOL . \PHP_EOL;
+        $this->showMessage('Option "' . $option . '" not available for "' . $cmd . '".' . \PHP_EOL . \PHP_EOL);
     }
 
     /**

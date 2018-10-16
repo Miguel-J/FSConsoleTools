@@ -16,6 +16,16 @@
 {% endif %}
     </column>
 {% endfor %}
+{% for column in fsc.getExtraItemsFromTable(fsc.getDataBase(), fsc.getTableName()) %}
+    <column>
+        <name>{{ column['name'] }}</name>
+        <type>{{ fsc.parseType(column['type'], 'table') }}</type>
+        <null>{{ column['is_nullable'] }}</null>
+        {% if column['default'] != null %}
+            <default>{{ column['default'] }}</default>
+        {% endif %}
+    </column>
+{% endfor %}
 {% for constraint in fsc.getConstraintsGroupByName() %}
     <constraint>
         <name>{{ constraint['name'] }}</name>

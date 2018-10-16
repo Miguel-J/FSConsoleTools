@@ -40,6 +40,19 @@ trait TableInformation
     private $tableName;
 
     /**
+     * Text of the table field prefix.
+     *
+     * @var string
+     */
+    private $fieldPrefix;
+    /**
+     * Extra fields.
+     *
+     * @var array
+     */
+    private $extraFields = [];
+
+    /**
      * Set destiny folder.
      *
      * @param string $dstFolder
@@ -226,9 +239,11 @@ trait TableInformation
         switch ($usedOn) {
             case 'table':
                 $type = str_replace('varchar', 'character varying', $type);
+                $type = str_replace('string', 'character varying', $type);
                 $type = preg_replace('/^double$/', 'double precision', $type);
                 $type = preg_replace('/^int\(\d+\)/', 'integer', $type);
                 $type = preg_replace('/tinyint\(1\)/', 'boolean', $type);
+                $type = preg_replace('/tinyint-$/', 'bool', $type);
                 $type = preg_replace('/^timestamp$/', 'timestamp without time zone', $type);
                 break;
             case 'php':
@@ -250,8 +265,67 @@ trait TableInformation
                 $type = str_replace('time without time zone', 'text', $type);
                 $type = str_replace('date', 'datepicker', $type);
                 break;
+            case 'xml-view':
+                $type = preg_replace('/^character varying\(\d+\)/', 'text', $type);
+                $type = preg_replace('/^varchar\(\d+\)/', 'text', $type);
+                $type = preg_replace('/^double$/', 'number-decimal', $type);
+                $type = preg_replace('/^int\(\d+\)/', 'number', $type);
+                $type = str_replace('boolean', 'checkbox', $type);
+                $type = preg_replace('/^timestamp$/', 'text', $type);
+                $type = str_replace('time without time zone', 'text', $type);
+                $type = str_replace('date', 'datepicker', $type);
+                break;
         }
 
         return $type;
+    }
+
+    /**
+     * Add extra fields details.
+     *
+     * @param array  $fields
+     * @param string $prefix
+     */
+    public function addExtraFields(array $fields, string $prefix = '')
+    {
+        $this->fieldPrefix = $prefix;
+        foreach ($fields as $field) {
+            $this->extraFields[$field['name']] = [
+                'type' => $this->parseType($field['type'], 'table'),
+                'key' => '',
+                'default' => $field['default'],
+                'extra' => '',
+                'is_nullable' => strtoupper($field['is_nullable']),
+                'name' => $this->fieldPrefix . $field['name'],
+                'length' => $field['length'],
+            ];
+        }
+    }
+
+    /**
+     * Return a list of fields like getItemsFromTable method.
+     *
+     * @param DataBase $dataBase
+     * @param string   $tableName
+     *
+     * @return array
+     */
+    public function getExtraItemsFromTable(DataBase $dataBase, string $tableName): array
+    {
+        $fields = [];
+        /// Fill with original fields
+        $items = $this->getItemsFromTable($dataBase, $tableName);
+        foreach ($items as $key => $item) {
+            if (strpos($item['name'], $this->fieldPrefix) !== false) {
+                $fields[$key] = $item;
+            }
+        }
+        /// Fill with extra fields
+        foreach ($this->extraFields as $key => $item) {
+            if (strpos($item['name'], $this->fieldPrefix) !== false) {
+                $fields[$this->fieldPrefix . $key] = $item;
+            }
+        }
+        return $fields;
     }
 }

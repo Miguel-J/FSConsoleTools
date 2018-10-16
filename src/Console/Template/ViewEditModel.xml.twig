@@ -1,21 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- * This file is part of FacturaScripts
- * Copyright (C) {{ "now"|date("Y") }} Carlos Garcia Gomez <carlos@facturascripts.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
+ * This file was generated using FSConsoleTools.
+ * Copyright (C) {{ "now"|date("Y") }} {{ fsc.getDevName() }} <{{ fsc.getDevMail() }}>
  *
  * Description for the controller Edit{{ fsc.getModelName() }}
  *
@@ -35,17 +21,41 @@
 {% endif %}
 {% if column['type'] starts with 'date' %}
             <column name="trans-{{ column['name'] }}" numcolumns="3" order="{{ order }}">
-                <widget type="{{ fsc.parseType(column['type'], 'view') }}" fieldname="{{ column['name'] }}" />
+                <widget type="{{ fsc.parseType(column['type'], 'xml-view') }}" fieldname="{{ column['name'] }}" />
             </column>
 {% elseif column['type'] starts with 'bool' %}
             <column name="trans-{{ column['name'] }}" numcolumns="3" order="{{ order }}">
-                <widget type="{{ fsc.parseType(column['type'], 'view') }}" fieldname="{{ column['name'] }}" />
+                <widget type="{{ fsc.parseType(column['type'], 'xml-view') }}" fieldname="{{ column['name'] }}" />
             </column>
 {% else %}
 {% if column['type'] starts with 'number' %}{% set decimal = ' decimal="2"' %}{% else %}{% set decimal = '' %}{% endif %}
             <column name="trans-{{ column['name'] }}" numcolumns="3" order="{{ order }}">
-                <widget type="{{ fsc.parseType(column['type'], 'view')|replace({'number-decimal': 'number'}) }}"{{ decimal|raw }} fieldname="{{ column['name'] }}"{% if column['is_nullable'] == 'NO' %} required="true"{% endif %} />
+                <widget type="{{ fsc.parseType(column['type'], 'xml-view')|replace({'number-decimal': 'number'}) }}"{{ decimal|raw }} fieldname="{{ column['name'] }}"{% if column['is_nullable'] == 'NO' %} required="true"{% endif %} />
             </column>
+{% endif %}
+{% endfor %}
+        </group>
+        <group name="custom-fields" title="custom-fields" numcolumns="12">
+{% for key, column in fsc.getExtraItemsFromTable(fsc.getDataBase(), fsc.getTableName()) %}
+{% set order = 1000 + (key*10) %}
+{% if column['default'] starts with 'nextval' %}
+    <column name="code" display="none" order="{{ order }}">
+        <widget type="text" fieldname="{{ column['name'] }}" icon="fa-object-group" required="true" />
+    </column>
+{% endif %}
+{% if column['type'] starts with 'date' %}
+    <column name="trans-{{ column['name'] }}" numcolumns="3" order="{{ order }}">
+        <widget type="{{ fsc.parseType(column['type'], 'xml-view') }}" fieldname="{{ column['name'] }}" />
+    </column>
+{% elseif column['type'] starts with 'bool' %}
+    <column name="trans-{{ column['name'] }}" numcolumns="3" order="{{ order }}">
+        <widget type="{{ fsc.parseType(column['type'], 'xml-view') }}" fieldname="{{ column['name'] }}" />
+    </column>
+{% else %}
+    {% if column['type'] starts with 'number' %}{% set decimal = ' decimal="2"' %}{% else %}{% set decimal = '' %}{% endif %}
+    <column name="trans-{{ column['name'] }}" numcolumns="3" order="{{ order }}">
+        <widget type="{{ fsc.parseType(column['type'], 'xml-view')|replace({'number-decimal': 'number'}) }}"{{ decimal|raw }} fieldname="{{ column['name'] }}"{% if column['is_nullable'] == 'NO' %} required="true"{% endif %} />
+    </column>
 {% endif %}
 {% endfor %}
         </group>

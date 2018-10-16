@@ -1,20 +1,7 @@
 <?php
 /**
- * This file is part of FacturaScripts
- * Copyright (C) {{ "now"|date("Y") }} Carlos Garcia Gomez <carlos@facturascripts.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * This file was generated using FSConsoleTools.
+ * Copyright (C) {{ "now"|date("Y") }} {{ fsc.getDevName() }} <{{ fsc.getDevMail() }}>
  */
 namespace FacturaScripts\Core\Model;
 
@@ -34,6 +21,16 @@ class {{ fsc.getModelName() }} extends Base\ModelClass
 {% set primaryKey = '' %}
 {% for const in fsc.getConstraintFromTable(fsc.getDataBase(), fsc.getTableName()) %}{% if const['type'] == 'PRIMARY KEY' %}{% set primaryKey = const['column_name'] %}{% endif %}{% endfor %}
 {% for item in fsc.getItemsFromTable(fsc.getDataBase(), fsc.getTableName()) %}
+    /**
+    {% if item['name'] == primaryKey %} * Primary key.
+    {% else %} * TODO: Describe this property.
+    {% endif %} *
+     * @var {{ fsc.parseType(item['type'], 'php') }}
+     */
+    public ${{ item['name'] }};
+
+{% endfor %}
+{% for item in fsc.getExtraItemsFromTable(fsc.getDataBase(), fsc.getTableName()) %}
     /**
     {% if item['name'] == primaryKey %} * Primary key.
     {% else %} * TODO: Describe this property.
@@ -84,6 +81,21 @@ class {{ fsc.getModelName() }} extends Base\ModelClass
         // TODO: Put default values here if are different than null, else remove this method.
 
 {% for item in fsc.getItemsFromTable(fsc.getDataBase(), fsc.getTableName()) %}
+{% if item['is_nullable'] == 'NO' %}
+{% if fsc.parseType(item['type'], 'view') starts with 'number-decimal' %}
+        $this->{{ item['name'] }} = 0.0;
+{% elseif fsc.parseType(item['type'], 'view') starts with 'number' %}
+        $this->{{ item['name'] }} = 0;
+{% elseif fsc.parseType(item['type'], 'view') starts with 'bool' %}
+        $this->{{ item['name'] }} = false;
+{% elseif fsc.parseType(item['type'], 'view') starts with 'date' %}
+        $this->{{ item['name'] }} = \date('d-m-Y');
+{% elseif fsc.parseType(item['type'], 'view') starts with 'text' %}
+        $this->{{ item['name'] }} = '';
+{% endif %}
+{% endif %}
+{% endfor %}
+{% for item in fsc.getExtraItemsFromTable(fsc.getDataBase(), fsc.getTableName()) %}
 {% if item['is_nullable'] == 'NO' %}
 {% if fsc.parseType(item['type'], 'view') starts with 'number-decimal' %}
         $this->{{ item['name'] }} = 0.0;

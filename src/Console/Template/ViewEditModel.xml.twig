@@ -16,7 +16,7 @@
 {% set order = 100 + (key*10) %}
 {% if column['default'] starts with 'nextval' %}
             <column name="code" display="none" order="{{ order }}">
-                <widget type="text" fieldname="{{ column['name'] }}" icon="fa-object-group" required="true" />
+                <widget type="text" fieldname="{{ column['name'] }}" icon="fas fa-object-group" required="true" />
             </column>
 {% endif %}
 {% if column['type'] starts with 'date' %}
@@ -40,7 +40,7 @@
 {% set order = 1000 + (key*10) %}
 {% if column['default'] starts with 'nextval' %}
     <column name="code" display="none" order="{{ order }}">
-        <widget type="text" fieldname="{{ column['name'] }}" icon="fa-object-group" required="true" />
+        <widget type="text" fieldname="{{ column['name'] }}" icon="fas fa-object-group" required="true" />
     </column>
 {% endif %}
 {% if column['type'] starts with 'date' %}
